@@ -15,9 +15,14 @@ import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFSlide;
 
 public class PptxConverter {
-    public static void main (String args[]) throws IOException {
-        //Class c = Class.forName("PptxConverter");
-        XMLSlideShow ppt = new XMLSlideShow(PptxConverter.class.getResourceAsStream("fonts-in-text.pptx"));
+    public static void main (String[] args) throws IOException {
+        if (args.length == 0) {
+            System.out.println("Input file required as argument.");
+            System.exit(0);
+        }
+        String inputFile = args[0];
+
+        XMLSlideShow ppt = new XMLSlideShow(new FileInputStream(inputFile));
         PDDocument document = new PDDocument();
 
         for (XSLFSlide slide : ppt.getSlides()) {
@@ -33,7 +38,7 @@ public class PptxConverter {
             contentStream.drawForm(pdfBoxGraphics2D.getXFormObject());
             contentStream.close();
         }
-        document.save(new File("output-PptToPdf.pdf"));
+        document.save(new File(inputFile + ".pdf"));
         document.close();
     }
 }
