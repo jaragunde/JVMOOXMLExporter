@@ -1,5 +1,4 @@
 import de.rototor.pdfbox.graphics2d.PdfBoxGraphics2D;
-import de.rototor.pdfbox.graphics2d.PdfBoxGraphics2DFontTextDrawer;
 import de.rototor.pdfbox.graphics2d.PdfBoxGraphics2DFontTextDrawerDefaultFonts;
 
 import java.io.File;
@@ -15,13 +14,8 @@ import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFSlide;
 
 public class PptxConverter {
-    public static void main (String[] args) throws IOException {
-        if (args.length == 0) {
-            System.out.println("Input file required as argument.");
-            System.exit(0);
-        }
-        String inputFile = args[0];
 
+    public static void convertPptx(String inputFile) throws IOException {
         XMLSlideShow ppt = new XMLSlideShow(new FileInputStream(inputFile));
         PDDocument document = new PDDocument();
 
@@ -43,5 +37,20 @@ public class PptxConverter {
         }
         document.save(new File(inputFile + ".pdf"));
         document.close();
+    }
+
+    public static void main (String[] args) throws IOException {
+        if (args.length == 0) {
+            System.out.println("Input file required as argument.");
+            System.exit(0);
+        }
+        String inputFile = args[0];
+
+        if (inputFile.endsWith(".pptx")) {
+            convertPptx(inputFile);
+        } else {
+            System.out.println("File type unsupported.");
+            System.exit(0);
+        }
     }
 }
