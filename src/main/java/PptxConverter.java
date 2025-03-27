@@ -9,6 +9,8 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
@@ -16,9 +18,29 @@ import org.apache.poi.xslf.usermodel.XSLFSlide;
 import org.apache.poi.xwpf.usermodel.*;
 
 public class PptxConverter {
+    public static PDDocument document;
+
+    public static PDFont fontMatch(String fontName) throws IOException {
+        if (fontName == null) {
+            return new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN);
+        }
+        switch (fontName) {
+            case "Cantallel":
+                return PDType0Font.load(document, new FileInputStream("/usr/share/fonts/abattis-cantarell-fonts/Cantarell-Regular.otf"), false);
+            case "Nimbus Mono PS":
+                return PDType0Font.load(document, new FileInputStream("/usr/share/fonts/urw-base35/NimbusMonoPS-Regular.otf"), false);
+            case "Carlito":
+                return PDType0Font.load(document, new File("/usr/share/fonts/google-carlito-fonts/Carlito-Regular.ttf"));
+            case "Liberation Serif":
+                return PDType0Font.load(document, new File("/usr/share/fonts/liberation-serif/LiberationSerif-Regular.ttf"));
+            default:
+                return new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN);
+        }
+    }
+
     public static void convertDocx(String inputFile) throws IOException {
         XWPFDocument docx = new XWPFDocument(new FileInputStream(inputFile));
-        PDDocument document = new PDDocument();
+        document = new PDDocument();
         PDPage page = new PDPage();
         document.addPage(page);
         PDPageContentStream contentStream = new PDPageContentStream(document, page);
@@ -28,10 +50,13 @@ public class PptxConverter {
             if (bodyElement.getElementType() == BodyElementType.PARAGRAPH) {
                 for (XWPFRun textRegion : ((XWPFParagraph) bodyElement).getRuns()) {
                     String text = textRegion.text();
+                    String fontName = textRegion.getFontName();
+                    System.out.println(text);
+                    System.out.println(fontName);
                     textLocation += 25;
 
                     contentStream.beginText();
-                    contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
+                    contentStream.setFont(fontMatch(fontName), 12);
                     contentStream.newLineAtOffset(25, textLocation);
                     contentStream.showText(text);
                     contentStream.endText();
@@ -45,7 +70,7 @@ public class PptxConverter {
 
     public static void convertPptx(String inputFile) throws IOException {
         XMLSlideShow ppt = new XMLSlideShow(new FileInputStream(inputFile));
-        PDDocument document = new PDDocument();
+        document = new PDDocument();
 
         for (XSLFSlide slide : ppt.getSlides()) {
             PDPage page = new PDPage(new PDRectangle(ppt.getPageSize().width, ppt.getPageSize().height));
