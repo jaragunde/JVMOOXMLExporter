@@ -20,21 +20,25 @@ import org.apache.poi.xwpf.usermodel.*;
 public class PptxConverter {
     public static PDDocument document;
 
+    public static PDFont defaultFont() {
+        return new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN);
+    }
+
     public static PDFont fontMatch(String fontName) throws IOException {
         if (fontName == null) {
-            return new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN);
+            return defaultFont();
         }
         switch (fontName) {
             case "Cantallel":
-                return PDType0Font.load(document, new FileInputStream("/usr/share/fonts/abattis-cantarell-fonts/Cantarell-Regular.otf"), false);
+                return defaultFont();
             case "Nimbus Mono PS":
-                return PDType0Font.load(document, new FileInputStream("/usr/share/fonts/urw-base35/NimbusMonoPS-Regular.otf"), false);
+                return defaultFont();
             case "Carlito":
                 return PDType0Font.load(document, new File("/usr/share/fonts/google-carlito-fonts/Carlito-Regular.ttf"));
             case "Liberation Serif":
                 return PDType0Font.load(document, new File("/usr/share/fonts/liberation-serif/LiberationSerif-Regular.ttf"));
             default:
-                return new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN);
+                return defaultFont();
         }
     }
 
