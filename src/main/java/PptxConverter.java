@@ -10,10 +10,38 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFSlide;
+import org.apache.poi.xwpf.usermodel.*;
 
 public class PptxConverter {
+    public static void convertDocx(String inputFile) throws IOException {
+        XWPFDocument docx = new XWPFDocument(new FileInputStream(inputFile));
+        PDDocument document = new PDDocument();
+        PDPage page = new PDPage();
+        document.addPage(page);
+        PDPageContentStream contentStream = new PDPageContentStream(document, page);
+        int textLocation = 0;
+
+        for (IBodyElement bodyElement : docx.getBodyElements()) {
+            if (bodyElement.getElementType() == BodyElementType.PARAGRAPH) {
+                for (XWPFRun textRegion : ((XWPFParagraph) bodyElement).getRuns()) {
+                    String text = textRegion.text();
+                    textLocation += 25;
+
+                    contentStream.beginText();
+                    contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
+                    contentStream.newLineAtOffset(25, textLocation);
+                    contentStream.showText(text);
+                    contentStream.endText();
+                }
+            }
+        }
+        contentStream.close();
+        document.save(new File(inputFile + ".pdf"));
+        document.close();
+    }
 
     public static void convertPptx(String inputFile) throws IOException {
         XMLSlideShow ppt = new XMLSlideShow(new FileInputStream(inputFile));
@@ -48,6 +76,8 @@ public class PptxConverter {
 
         if (inputFile.endsWith(".pptx")) {
             convertPptx(inputFile);
+        } else if (inputFile.endsWith(".docx")) {
+            convertDocx(inputFile);
         } else {
             System.out.println("File type unsupported.");
             System.exit(0);
