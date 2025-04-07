@@ -18,9 +18,16 @@ import org.apache.poi.xslf.usermodel.XSLFSlide;
 import org.apache.poi.xwpf.usermodel.*;
 
 public class PptxConverter {
-    public static PDDocument document;
+    private PDDocument document;
+    private String inputFile;
+    private String outputFile;
 
-    public static void convertPptx(String inputFile, String outputFile) throws IOException {
+    public PptxConverter(String inputFile, String outputFile) {
+        this.inputFile = inputFile;
+        this.outputFile = outputFile;
+    }
+
+    public void convert() throws IOException {
         XMLSlideShow ppt = new XMLSlideShow(new FileInputStream(inputFile));
         document = new PDDocument();
 

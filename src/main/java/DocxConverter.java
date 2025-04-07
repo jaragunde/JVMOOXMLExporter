@@ -12,13 +12,20 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 public class DocxConverter {
-    public static PDDocument document;
+    private PDDocument document;
+    private String inputFile;
+    private String outputFile;
 
-    public static PDFont defaultFont() {
+    public DocxConverter(String inputFile, String outputFile) {
+        this.inputFile = inputFile;
+        this.outputFile = outputFile;
+    }
+
+    private PDFont defaultFont() {
         return new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN);
     }
 
-    public static PDFont fontMatch(String fontName) throws IOException {
+    private PDFont fontMatch(String fontName) throws IOException {
         if (fontName == null) {
             return defaultFont();
         }
@@ -36,7 +43,7 @@ public class DocxConverter {
         }
     }
 
-    public static void convertDocx(String inputFile, String outputFile) throws IOException {
+    public void convert() throws IOException {
         XWPFDocument docx = new XWPFDocument(new FileInputStream(inputFile));
         document = new PDDocument();
         PDPage page = new PDPage();
