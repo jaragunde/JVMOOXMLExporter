@@ -9,9 +9,9 @@ public class Main {
         String inputFile = args[0];
 
         if (inputFile.endsWith(".pptx")) {
-            PptxConverter.convertPptx(inputFile);
+            PptxConverter.convertPptx(inputFile, inputFile + ".pdf");
         } else if (inputFile.endsWith(".docx")) {
-            PptxConverter.convertDocx(inputFile);
+            PptxConverter.convertDocx(inputFile, inputFile + ".pdf");
         } else {
             System.out.println("File type unsupported.");
             System.exit(0);

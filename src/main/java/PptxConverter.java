@@ -42,7 +42,7 @@ public class PptxConverter {
         }
     }
 
-    public static void convertDocx(String inputFile) throws IOException {
+    public static void convertDocx(String inputFile, String outputFile) throws IOException {
         XWPFDocument docx = new XWPFDocument(new FileInputStream(inputFile));
         document = new PDDocument();
         PDPage page = new PDPage();
@@ -68,11 +68,11 @@ public class PptxConverter {
             }
         }
         contentStream.close();
-        document.save(new File(inputFile + ".pdf"));
+        document.save(new File(outputFile));
         document.close();
     }
 
-    public static void convertPptx(String inputFile) throws IOException {
+    public static void convertPptx(String inputFile, String outputFile) throws IOException {
         XMLSlideShow ppt = new XMLSlideShow(new FileInputStream(inputFile));
         document = new PDDocument();
 
@@ -92,7 +92,7 @@ public class PptxConverter {
             contentStream.drawForm(pdfBoxGraphics2D.getXFormObject());
             contentStream.close();
         }
-        document.save(new File(inputFile + ".pdf"));
+        document.save(new File(outputFile));
         document.close();
     }
 }
