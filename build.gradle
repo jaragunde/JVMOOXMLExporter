@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'application'
+    id 'java-library-distribution'
 }
 
 group = 'org.example'
@@ -25,4 +26,14 @@ test {
 
 application {
     mainClass = 'Main'
+}
+
+distributions {
+    main {
+        distributionBaseName = 'ooxml-exporter'
+    }
+}
+
+tasks.withType(Zip){
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
