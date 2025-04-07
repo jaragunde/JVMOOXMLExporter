@@ -17,7 +17,7 @@ import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFSlide;
 import org.apache.poi.xwpf.usermodel.*;
 
-public class PptxConverter {
+public class PptxConverter implements DocumentConverter {
     private PDDocument document;
     private String inputFile;
     private String outputFile;

@@ -11,7 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-public class DocxConverter {
+public class DocxConverter implements DocumentConverter {
     private PDDocument document;
     private String inputFile;
     private String outputFile;
