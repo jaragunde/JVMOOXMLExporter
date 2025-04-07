@@ -11,7 +11,7 @@ public class Main {
         if (inputFile.endsWith(".pptx")) {
             PptxConverter.convertPptx(inputFile, inputFile + ".pdf");
         } else if (inputFile.endsWith(".docx")) {
-            PptxConverter.convertDocx(inputFile, inputFile + ".pdf");
+            DocxConverter.convertDocx(inputFile, inputFile + ".pdf");
         } else {
             System.out.println("File type unsupported.");
             System.exit(0);
