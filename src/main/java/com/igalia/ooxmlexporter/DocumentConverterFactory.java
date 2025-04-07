@@ -1,3 +1,5 @@
+package com.igalia.ooxmlexporter;
+
 public class DocumentConverterFactory {
     public static DocumentConverter getConverterForDocument(String inputFile, String outputFile) {
         if (inputFile.endsWith(".pptx")) {
