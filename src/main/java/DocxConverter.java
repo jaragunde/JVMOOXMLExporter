@@ -43,33 +43,37 @@ public class DocxConverter {
         }
     }
 
-    public void convert() throws IOException {
-        XWPFDocument docx = new XWPFDocument(new FileInputStream(inputFile));
-        document = new PDDocument();
-        PDPage page = new PDPage();
-        document.addPage(page);
-        PDPageContentStream contentStream = new PDPageContentStream(document, page);
-        int textLocation = 0;
+    public void convert() {
+        try {
+            XWPFDocument docx = new XWPFDocument(new FileInputStream(inputFile));
+            document = new PDDocument();
+            PDPage page = new PDPage();
+            document.addPage(page);
+            PDPageContentStream contentStream = new PDPageContentStream(document, page);
+            int textLocation = 0;
 
-        for (IBodyElement bodyElement : docx.getBodyElements()) {
-            if (bodyElement.getElementType() == BodyElementType.PARAGRAPH) {
-                for (XWPFRun textRegion : ((XWPFParagraph) bodyElement).getRuns()) {
-                    String text = textRegion.text();
-                    String fontName = textRegion.getFontName();
-                    System.out.println(text);
-                    System.out.println(fontName);
-                    textLocation += 25;
+            for (IBodyElement bodyElement : docx.getBodyElements()) {
+                if (bodyElement.getElementType() == BodyElementType.PARAGRAPH) {
+                    for (XWPFRun textRegion : ((XWPFParagraph) bodyElement).getRuns()) {
+                        String text = textRegion.text();
+                        String fontName = textRegion.getFontName();
+                        System.out.println(text);
+                        System.out.println(fontName);
+                        textLocation += 25;
 
-                    contentStream.beginText();
-                    contentStream.setFont(fontMatch(fontName), 12);
-                    contentStream.newLineAtOffset(25, textLocation);
-                    contentStream.showText(text);
-                    contentStream.endText();
+                        contentStream.beginText();
+                        contentStream.setFont(fontMatch(fontName), 12);
+                        contentStream.newLineAtOffset(25, textLocation);
+                        contentStream.showText(text);
+                        contentStream.endText();
+                    }
                 }
             }
+            contentStream.close();
+            document.save(new File(outputFile));
+            document.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        contentStream.close();
-        document.save(new File(outputFile));
-        document.close();
     }
 }

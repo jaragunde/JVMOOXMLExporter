@@ -27,27 +27,30 @@ public class PptxConverter {
         this.outputFile = outputFile;
     }
 
-    public void convert() throws IOException {
-        XMLSlideShow ppt = new XMLSlideShow(new FileInputStream(inputFile));
-        document = new PDDocument();
+    public void convert() {
+        try {
+            XMLSlideShow ppt = new XMLSlideShow(new FileInputStream(inputFile));
+            document = new PDDocument();
 
-        for (XSLFSlide slide : ppt.getSlides()) {
-            PDPage page = new PDPage(new PDRectangle(ppt.getPageSize().width, ppt.getPageSize().height));
-            document.addPage(page);
-            PdfBoxGraphics2D pdfBoxGraphics2D = new PdfBoxGraphics2D(document, ppt.getPageSize().width, ppt.getPageSize().height);
+            for (XSLFSlide slide : ppt.getSlides()) {
+                PDPage page = new PDPage(new PDRectangle(ppt.getPageSize().width, ppt.getPageSize().height));
+                document.addPage(page);
+                PdfBoxGraphics2D pdfBoxGraphics2D = new PdfBoxGraphics2D(document, ppt.getPageSize().width, ppt.getPageSize().height);
 
-            PdfBoxGraphics2DFontTextDrawerDefaultFonts fontTextDrawer = new PdfBoxGraphics2DFontTextDrawerDefaultFonts();
-            fontTextDrawer.registerFont(new File("/usr/share/fonts/liberation-serif/LiberationSerif-Regular.ttf"));
-            fontTextDrawer.registerFont(new File("/usr/share/fonts/google-carlito-fonts/Carlito-Regular.ttf"));
-            pdfBoxGraphics2D.setFontTextDrawer(fontTextDrawer);
-            slide.draw(pdfBoxGraphics2D);
-            pdfBoxGraphics2D.dispose();
-
-            PDPageContentStream contentStream = new PDPageContentStream(document, page);
-            contentStream.drawForm(pdfBoxGraphics2D.getXFormObject());
-            contentStream.close();
+                PdfBoxGraphics2DFontTextDrawerDefaultFonts fontTextDrawer = new PdfBoxGraphics2DFontTextDrawerDefaultFonts();
+                fontTextDrawer.registerFont(new File("/usr/share/fonts/liberation-serif/LiberationSerif-Regular.ttf"));
+                fontTextDrawer.registerFont(new File("/usr/share/fonts/google-carlito-fonts/Carlito-Regular.ttf"));
+                pdfBoxGraphics2D.setFontTextDrawer(fontTextDrawer);
+                slide.draw(pdfBoxGraphics2D);
+                pdfBoxGraphics2D.dispose();
+                PDPageContentStream contentStream = new PDPageContentStream(document, page);
+                contentStream.drawForm(pdfBoxGraphics2D.getXFormObject());
+                contentStream.close();
+            }
+            document.save(new File(outputFile));
+            document.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        document.save(new File(outputFile));
-        document.close();
     }
 }
