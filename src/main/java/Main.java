@@ -8,11 +8,8 @@ public class Main {
         }
         String inputFile = args[0];
 
-        if (inputFile.endsWith(".pptx")) {
-            DocumentConverter converter = new PptxConverter(inputFile, inputFile + ".pdf");
-            converter.convert();
-        } else if (inputFile.endsWith(".docx")) {
-            DocumentConverter converter = new DocxConverter(inputFile, inputFile + ".pdf");
+        DocumentConverter converter = DocumentConverterFactory.getConverterForDocument(inputFile, inputFile + ".pdf");
+        if (converter != null) {
             converter.convert();
         } else {
             System.out.println("File type unsupported.");
