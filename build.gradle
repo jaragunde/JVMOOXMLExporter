@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'java-library'
     id 'application'
     id 'java-library-distribution'
 }
@@ -35,5 +36,9 @@ distributions {
 }
 
 tasks.withType(Zip){
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.withType(Tar){
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
