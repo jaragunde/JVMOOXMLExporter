@@ -35,8 +35,6 @@ public class PptxConverter implements DocumentConverter {
                 PdfBoxGraphics2D pdfBoxGraphics2D = new PdfBoxGraphics2D(document, ppt.getPageSize().width, ppt.getPageSize().height);
 
                 PdfBoxGraphics2DFontTextDrawerDefaultFonts fontTextDrawer = new PdfBoxGraphics2DFontTextDrawerDefaultFonts();
-                fontTextDrawer.registerFont(new File("/usr/share/fonts/liberation-serif/LiberationSerif-Regular.ttf"));
-                fontTextDrawer.registerFont(new File("/usr/share/fonts/google-carlito-fonts/Carlito-Regular.ttf"));
                 pdfBoxGraphics2D.setFontTextDrawer(fontTextDrawer);
                 slide.draw(pdfBoxGraphics2D);
                 pdfBoxGraphics2D.dispose();
