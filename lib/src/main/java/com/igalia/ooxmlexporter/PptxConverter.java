@@ -51,21 +51,25 @@ public class PptxConverter implements DocumentConverter {
             PdfBoxGraphics2DFontTextDrawer fontTextDrawer = createFontTextDrawer();
 
             for (XSLFSlide slide : ppt.getSlides()) {
-                PDPage page = new PDPage(new PDRectangle(ppt.getPageSize().width, ppt.getPageSize().height));
-                document.addPage(page);
-                PdfBoxGraphics2D pdfBoxGraphics2D = new PdfBoxGraphics2D(document, ppt.getPageSize().width, ppt.getPageSize().height);
-
-                pdfBoxGraphics2D.setFontTextDrawer(fontTextDrawer);
-                slide.draw(pdfBoxGraphics2D);
-                pdfBoxGraphics2D.dispose();
-                PDPageContentStream contentStream = new PDPageContentStream(document, page);
-                contentStream.drawForm(pdfBoxGraphics2D.getXFormObject());
-                contentStream.close();
+                convertSlide(ppt, fontTextDrawer, slide);
             }
             document.save(new File(outputFile));
             document.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void convertSlide(XMLSlideShow ppt, PdfBoxGraphics2DFontTextDrawer fontTextDrawer, XSLFSlide slide) throws IOException {
+        PDPage page = new PDPage(new PDRectangle(ppt.getPageSize().width, ppt.getPageSize().height));
+        document.addPage(page);
+        PdfBoxGraphics2D pdfBoxGraphics2D = new PdfBoxGraphics2D(document, ppt.getPageSize().width, ppt.getPageSize().height);
+
+        pdfBoxGraphics2D.setFontTextDrawer(fontTextDrawer);
+        slide.draw(pdfBoxGraphics2D);
+        pdfBoxGraphics2D.dispose();
+        PDPageContentStream contentStream = new PDPageContentStream(document, page);
+        contentStream.drawForm(pdfBoxGraphics2D.getXFormObject());
+        contentStream.close();
     }
 }
