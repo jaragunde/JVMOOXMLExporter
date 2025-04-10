@@ -48,13 +48,14 @@ public class PptxConverter implements DocumentConverter {
         try {
             XMLSlideShow ppt = new XMLSlideShow(new FileInputStream(inputFile));
             document = new PDDocument();
+            PdfBoxGraphics2DFontTextDrawer fontTextDrawer = createFontTextDrawer();
 
             for (XSLFSlide slide : ppt.getSlides()) {
                 PDPage page = new PDPage(new PDRectangle(ppt.getPageSize().width, ppt.getPageSize().height));
                 document.addPage(page);
                 PdfBoxGraphics2D pdfBoxGraphics2D = new PdfBoxGraphics2D(document, ppt.getPageSize().width, ppt.getPageSize().height);
 
-                pdfBoxGraphics2D.setFontTextDrawer(createFontTextDrawer());
+                pdfBoxGraphics2D.setFontTextDrawer(fontTextDrawer);
                 slide.draw(pdfBoxGraphics2D);
                 pdfBoxGraphics2D.dispose();
                 PDPageContentStream contentStream = new PDPageContentStream(document, page);
