@@ -51,7 +51,14 @@ public class PptxConverter implements DocumentConverter {
             PdfBoxGraphics2DFontTextDrawer fontTextDrawer = createFontTextDrawer();
 
             for (XSLFSlide slide : ppt.getSlides()) {
-                convertSlide(ppt, fontTextDrawer, slide);
+                try {
+                    convertSlide(ppt, fontTextDrawer, slide);
+                } catch (RuntimeException e) {
+                    // Exceptions can be caused by unsupported fonts, but we only learn this
+                    // in the rendering phase, not in the font loading phase. In case of
+                    // problems, we try once again with a reset font text drawer
+                    convertSlide(ppt, new PdfBoxGraphics2DFontTextDrawerDefaultFonts(), slide);
+                }
             }
             document.save(new File(outputFile));
             document.close();
