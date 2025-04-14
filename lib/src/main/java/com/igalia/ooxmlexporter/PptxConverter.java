@@ -7,6 +7,8 @@ import de.rototor.pdfbox.graphics2d.PdfBoxGraphics2DFontTextDrawerDefaultFonts;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -21,6 +23,7 @@ public class PptxConverter implements DocumentConverter {
     private String outputFile;
 
     private static final String SYSTEM_FONT_PATH = "/usr/share/fonts";
+    private static final List<String> FONT_DENYLIST = Arrays.asList("NotoColorEmoji.ttf");
 
     public PptxConverter(String inputFile, String outputFile) {
         this.inputFile = inputFile;
@@ -34,7 +37,8 @@ public class PptxConverter implements DocumentConverter {
     }
 
     private void addFontsToDrawerRecursively(File file, PdfBoxGraphics2DFontTextDrawer fontTextDrawer) {
-        if (file.isFile() && file.getName().endsWith(".ttf")) {
+        if (file.isFile() && file.getName().endsWith(".ttf") &&
+                !FONT_DENYLIST.contains(file.getName())) {
             fontTextDrawer.registerFont(file);
         }
         if (file.isDirectory()) {
