@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -24,6 +26,8 @@ public class PptxConverter implements DocumentConverter {
 
     private static final String SYSTEM_FONT_PATH = "/usr/share/fonts";
     private static final List<String> FONT_DENYLIST = Arrays.asList("NotoColorEmoji.ttf");
+
+    private static final Logger logger = LogManager.getLogger(PptxConverter.class);
 
     public PptxConverter(String inputFile, String outputFile) {
         this.inputFile = inputFile;
@@ -58,6 +62,7 @@ public class PptxConverter implements DocumentConverter {
                 try {
                     convertSlide(ppt, fontTextDrawer, slide);
                 } catch (RuntimeException e) {
+                    logger.debug(e);
                     // Exceptions can be caused by unsupported fonts, but we only learn this
                     // in the rendering phase, not in the font loading phase. In case of
                     // problems, we try once again with a reset font text drawer
