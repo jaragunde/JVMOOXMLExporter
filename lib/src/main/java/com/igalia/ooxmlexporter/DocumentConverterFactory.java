@@ -6,6 +6,10 @@ public class DocumentConverterFactory {
             return new PptxConverter(inputFile, outputFile);
         } else if (inputFile.endsWith(".docx")) {
             return new DocxConverter(inputFile, outputFile);
+        } else if (inputFile.endsWith(".xls")) {
+            return new XlsxConverter(inputFile, outputFile);
+        } else if (inputFile.endsWith(".xlsx")) {
+            return new XlsxConverter(inputFile, outputFile);
         } else {
             return null;
         }
