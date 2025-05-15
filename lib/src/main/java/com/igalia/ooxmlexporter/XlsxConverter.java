@@ -21,6 +21,9 @@ public class XlsxConverter implements DocumentConverter {
             ToHtml toHtml = ToHtml.create(inputFile, pw);
             toHtml.setCompleteHTML(true);
             toHtml.printPage();
+
+            ChartConverter chartConverter = new ChartConverter(inputFile);
+            chartConverter.convert();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

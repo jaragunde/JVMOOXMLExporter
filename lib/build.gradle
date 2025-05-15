@@ -16,6 +16,7 @@ dependencies {
     implementation 'org.apache.pdfbox:pdfbox:3.0.3'
     implementation 'org.apache.poi:poi-ooxml:5.4.0'
     implementation 'de.rototor.pdfbox:graphics2d:3.0.2'
+    implementation "org.jfree:jfreechart:1.5.0"
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
