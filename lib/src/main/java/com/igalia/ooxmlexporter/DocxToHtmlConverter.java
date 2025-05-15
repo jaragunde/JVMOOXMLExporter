@@ -1,10 +1,7 @@
 package com.igalia.ooxmlexporter;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.poi.xwpf.usermodel.BodyElementType;
-import org.apache.poi.xwpf.usermodel.IBodyElement;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.*;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -28,7 +25,20 @@ public class DocxToHtmlConverter implements DocumentConverter {
             for (IBodyElement bodyElement : docx.getBodyElements()) {
                 if (bodyElement.getElementType() == BodyElementType.PARAGRAPH) {
                     XWPFParagraph paragraph = (XWPFParagraph) bodyElement;
-                    html.append("<p>").append(paragraph.getText()).append("</p>");
+                    html.append("<p>");
+                    for (XWPFRun textRegion : ((XWPFParagraph) bodyElement).getRuns()) {
+                        html.append("<span style='");
+                        String fontName = textRegion.getFontName();
+                        if (fontName != null) {
+                            html.append("font-family: \"" + fontName + "\"; ");
+                        }
+                        Double fontSize = textRegion.getFontSizeAsDouble();
+                        if (fontSize != null) {
+                            html.append("font-size: " + fontSize + "px; ");
+                        }
+                        html.append("'>").append(textRegion.text()).append("</span>");
+                    }
+                    html.append("</p>");
                 }
             }
 
