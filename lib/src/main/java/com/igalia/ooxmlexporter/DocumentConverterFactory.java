@@ -5,7 +5,7 @@ public class DocumentConverterFactory {
         if (inputFile.endsWith(".pptx")) {
             return new PptxConverter(inputFile, outputFile);
         } else if (inputFile.endsWith(".docx")) {
-            return new DocxConverter(inputFile, outputFile);
+            return new DocxToHtmlConverter(inputFile, outputFile);
         } else if (inputFile.endsWith(".xls")) {
             return new XlsxConverter(inputFile, outputFile);
         } else if (inputFile.endsWith(".xlsx")) {
