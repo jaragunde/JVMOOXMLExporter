@@ -20,7 +20,7 @@ public class DocxConverter implements DocumentConverter {
 
     public DocxConverter(String inputFile, String outputFile) {
         this.inputFile = inputFile;
-        this.outputFile = outputFile;
+        this.outputFile = outputFile + "." + getDefaultExtension();
     }
 
     private PDFont defaultFont() {
@@ -77,5 +77,10 @@ public class DocxConverter implements DocumentConverter {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public String getDefaultExtension() {
+        return "pdf";
     }
 }

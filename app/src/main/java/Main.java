@@ -8,11 +8,11 @@ public class Main {
                     Missing input file.
                     Arguments:
                       input-file   mandatory, path to file to be converted.
-                      output-file  optional, defaults to input file with \".pdf\" suffix.""");
+                      output-file  optional, defaults to input file with the corresponding output extension (\".pdf\" or \".html\").""");
             System.exit(0);
         }
         String inputFile = args[0];
-        String outputFile = inputFile + ".pdf";
+        String outputFile = inputFile; // extension will be added by the DocumentConverter
         if (args.length > 1) {
             outputFile = args[1];
         }

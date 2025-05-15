@@ -31,7 +31,7 @@ public class PptxConverter implements DocumentConverter {
 
     public PptxConverter(String inputFile, String outputFile) {
         this.inputFile = inputFile;
-        this.outputFile = outputFile;
+        this.outputFile = outputFile + "." + getDefaultExtension();
     }
 
     private PdfBoxGraphics2DFontTextDrawer createFontTextDrawer() {
@@ -87,5 +87,10 @@ public class PptxConverter implements DocumentConverter {
         PDPageContentStream contentStream = new PDPageContentStream(document, page);
         contentStream.drawForm(pdfBoxGraphics2D.getXFormObject());
         contentStream.close();
+    }
+
+    @Override
+    public String getDefaultExtension() {
+        return "pdf";
     }
 }

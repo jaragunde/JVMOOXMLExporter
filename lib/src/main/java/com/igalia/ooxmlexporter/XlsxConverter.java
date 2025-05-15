@@ -12,7 +12,7 @@ public class XlsxConverter implements DocumentConverter {
 
     public XlsxConverter(String inputFile, String outputFile) {
         this.inputFile = inputFile;
-        this.outputFile = outputFile;
+        this.outputFile = outputFile + "." + getDefaultExtension();
     }
 
     @Override
@@ -27,5 +27,10 @@ public class XlsxConverter implements DocumentConverter {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public String getDefaultExtension() {
+        return "html";
     }
 }
