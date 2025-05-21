@@ -1,6 +1,5 @@
 package com.igalia.ooxmlexporter;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.poi.xwpf.usermodel.*;
 
 import java.io.FileInputStream;
@@ -24,19 +23,13 @@ public class DocxToHtmlConverter implements DocumentConverter {
 
             for (IBodyElement bodyElement : docx.getBodyElements()) {
                 if (bodyElement.getElementType() == BodyElementType.PARAGRAPH) {
-                    XWPFParagraph paragraph = (XWPFParagraph) bodyElement;
                     html.append("<p>");
                     for (XWPFRun textRegion : ((XWPFParagraph) bodyElement).getRuns()) {
-                        html.append("<span style='");
-                        String fontName = textRegion.getFontName();
-                        if (fontName != null) {
-                            html.append("font-family: \"" + fontName + "\"; ");
-                        }
-                        Double fontSize = textRegion.getFontSizeAsDouble();
-                        if (fontSize != null) {
-                            html.append("font-size: " + fontSize + "px; ");
-                        }
-                        html.append("'>").append(textRegion.text()).append("</span>");
+                        html.append("<span style='")
+                                .append(generateCSSForTextRegion(textRegion))
+                                .append("'>")
+                                .append(textRegion.text())
+                                .append("</span>");
                     }
                     html.append("</p>");
                 }
@@ -50,6 +43,19 @@ public class DocxToHtmlConverter implements DocumentConverter {
             throw new RuntimeException(e);
         }
 
+    }
+
+    public String generateCSSForTextRegion(XWPFRun textRegion) {
+        StringBuilder css = new StringBuilder();
+        String fontName = textRegion.getFontName();
+        if (fontName != null) {
+            css.append("font-family: \"" + fontName + "\"; ");
+        }
+        Double fontSize = textRegion.getFontSizeAsDouble();
+        if (fontSize != null) {
+            css.append("font-size: " + fontSize + "px; ");
+        }
+        return css.toString();
     }
 
     @Override
