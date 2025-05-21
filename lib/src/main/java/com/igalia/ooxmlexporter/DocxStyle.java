@@ -20,6 +20,14 @@ public class DocxStyle {
         this.fontSize = fontSize;
     }
 
+    public String getFontName() {
+        return fontName;
+    }
+
+    public BigInteger getFontSize() {
+        return fontSize;
+    }
+
     public String toCSS() {
         StringBuilder css = new StringBuilder();
         css.append(".").append(name).append(" {");

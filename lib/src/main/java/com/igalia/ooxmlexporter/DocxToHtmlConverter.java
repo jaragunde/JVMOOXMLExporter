@@ -30,8 +30,9 @@ public class DocxToHtmlConverter implements DocumentConverter {
 
             for (IBodyElement bodyElement : docx.getBodyElements()) {
                 if (bodyElement.getElementType() == BodyElementType.PARAGRAPH) {
-                    html.append("<p>");
-                    for (XWPFRun textRegion : ((XWPFParagraph) bodyElement).getRuns()) {
+                    XWPFParagraph paragraph = (XWPFParagraph) bodyElement;
+                    html.append("<p class=\"").append(paragraph.getStyle()).append("\">");
+                    for (XWPFRun textRegion : paragraph.getRuns()) {
                         html.append("<span style='")
                                 .append(generateCSSForTextRegion(textRegion))
                                 .append("'>")
@@ -39,7 +40,7 @@ public class DocxToHtmlConverter implements DocumentConverter {
                                 .append("</span>");
                         usedStyles.add(textRegion.getStyle());
                     }
-                    usedStyles.add(((XWPFParagraph) bodyElement).getStyle());
+                    usedStyles.add(paragraph.getStyle());
                     html.append("</p>");
                 }
             }
@@ -71,25 +72,29 @@ public class DocxToHtmlConverter implements DocumentConverter {
         Set<String> originalList = new HashSet<String>(usedStyles);
         for (String styleId : originalList) {
             if (!styleId.isEmpty()) {
-                styleList.add(new DocxStyle(styleId));
-                addBasedOnStyles(styleId, styles, styleList);
+                createStyleObjectAndBasedOn(styleId, styles, styleList);
             }
         }
     }
 
-    private void addBasedOnStyles(String styleId, XWPFStyles styles, Set<DocxStyle> styleList) {
+    private DocxStyle createStyleObjectAndBasedOn(String styleId, XWPFStyles styles, Set<DocxStyle> styleList) {
         CTStyle ctStyle = styles.getStyle(styleId).getCTStyle();
         DocxStyle style = new DocxStyle(styleId);
+
+        CTString basedOn = ctStyle.getBasedOn();
+        if (basedOn != null) {
+            DocxStyle baseStyle = createStyleObjectAndBasedOn(basedOn.getVal(), styles, styleList);
+            style.setFontName(baseStyle.getFontName());
+            style.setFontSize(baseStyle.getFontSize());
+        }
+        // A style can override attributes from the base style, that's why we do this
+        // in second place.
         if (ctStyle.getRPr().getRFontsArray().length > 0) {
             style.setFontName(ctStyle.getRPr().getRFontsArray()[0].getAscii());
             style.setFontSize((BigInteger) ctStyle.getRPr().getSzArray()[0].getVal());
         }
         styleList.add(style);
-
-        CTString basedOn = ctStyle.getBasedOn();
-        if (basedOn != null) {
-            addBasedOnStyles(basedOn.getVal(), styles, styleList);
-        }
+        return style;
     }
 
     public String generateCSSForTextRegion(XWPFRun textRegion) {
