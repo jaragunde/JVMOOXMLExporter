@@ -7,6 +7,7 @@ public class DocxStyle {
     private String name;
     private String fontName;
     private BigInteger fontSize;
+    private Boolean bold;
 
     public DocxStyle(String name) {
         this.name = name;
@@ -18,6 +19,10 @@ public class DocxStyle {
 
     public void setFontSize(BigInteger fontSize) {
         this.fontSize = fontSize;
+    }
+
+    public void setBold(Boolean bold) {
+        this.bold = bold;
     }
 
     public String getName() {
@@ -32,6 +37,10 @@ public class DocxStyle {
         return fontSize;
     }
 
+    public Boolean getBold() {
+        return bold;
+    }
+
     public String toCSS() {
         StringBuilder css = new StringBuilder();
         css.append(".").append(name).append(" {");
@@ -40,6 +49,9 @@ public class DocxStyle {
         }
         if (fontSize != null) {
             css.append("font-size: ").append(fontSize).append("px; ");
+        }
+        if (bold != null && bold) {
+            css.append("font-weight: bold; ");
         }
         css.append("} ");
         return css.toString();

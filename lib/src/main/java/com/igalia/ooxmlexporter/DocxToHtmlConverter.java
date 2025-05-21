@@ -93,12 +93,17 @@ public class DocxToHtmlConverter implements DocumentConverter {
             DocxStyle baseStyle = createStyleObjectAndBasedOn(basedOn.getVal(), styles, styleList);
             style.setFontName(baseStyle.getFontName());
             style.setFontSize(baseStyle.getFontSize());
+            style.setBold(baseStyle.getBold());
         }
         // A style can override attributes from the base style, that's why we do this
         // in second place.
         if (ctStyle.getRPr().getRFontsArray().length > 0) {
             style.setFontName(ctStyle.getRPr().getRFontsArray()[0].getAscii());
             style.setFontSize((BigInteger) ctStyle.getRPr().getSzArray()[0].getVal());
+        }
+        if (ctStyle.getRPr().getBArray().length > 0) {
+            // The presence of a `<w:b/>` tag indicates that bold is set.
+            style.setBold(true);
         }
         styleList.add(style);
         return style;
