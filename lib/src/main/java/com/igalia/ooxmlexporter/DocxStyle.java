@@ -8,12 +8,14 @@ public class DocxStyle {
     private String fontName;
     private BigInteger fontSize;
     private Boolean bold;
+    private Boolean italic;
 
     public DocxStyle(String name, DocxStyle copyFrom) {
         this.name = name;
         this.fontName = copyFrom.fontName;
         this.fontSize = copyFrom.fontSize;
         this.bold = copyFrom.bold;
+        this.italic = copyFrom.italic;
     }
 
     public DocxStyle(String name) {
@@ -32,6 +34,10 @@ public class DocxStyle {
         this.bold = bold;
     }
 
+    public void setItalic(Boolean italic) {
+        this.italic = italic;
+    }
+
     public String getName() {
         return name;
     }
@@ -48,6 +54,10 @@ public class DocxStyle {
         return bold;
     }
 
+    public Boolean getItalic() {
+        return italic;
+    }
+
     public String toCSS() {
         StringBuilder css = new StringBuilder();
         css.append(".").append(name).append(" {");
@@ -59,6 +69,9 @@ public class DocxStyle {
         }
         if (bold != null && bold) {
             css.append("font-weight: bold; ");
+        }
+        if (italic != null && italic) {
+            css.append("font-style: italic; ");
         }
         css.append("} ");
         return css.toString();

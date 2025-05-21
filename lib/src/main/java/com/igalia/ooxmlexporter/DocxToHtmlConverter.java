@@ -106,6 +106,10 @@ public class DocxToHtmlConverter implements DocumentConverter {
             // The presence of a `<w:b/>` tag indicates that bold is set.
             style.setBold(true);
         }
+        if (ctStyle.getRPr().getIArray().length > 0) {
+            // The presence of a `<w:b/>` tag indicates that bold is set.
+            style.setItalic(true);
+        }
         styleList.add(style);
         return style;
     }
