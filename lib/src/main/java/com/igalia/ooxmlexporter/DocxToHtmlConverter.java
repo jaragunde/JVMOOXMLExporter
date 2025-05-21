@@ -51,9 +51,19 @@ public class DocxToHtmlConverter implements DocumentConverter {
         if (fontName != null) {
             css.append("font-family: \"" + fontName + "\"; ");
         }
+        if (textRegion.isBold()) {
+            css.append("font-weight: bold; ");
+        }
+        if (textRegion.isItalic()) {
+            css.append("font-style: italic; ");
+        }
         Double fontSize = textRegion.getFontSizeAsDouble();
         if (fontSize != null) {
             css.append("font-size: " + fontSize + "px; ");
+        }
+        String fontColor = textRegion.getColor();
+        if (fontColor != null) {
+            css.append("color: #" + fontColor + "; ");
         }
         return css.toString();
     }
