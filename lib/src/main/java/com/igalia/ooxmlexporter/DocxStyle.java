@@ -9,6 +9,13 @@ public class DocxStyle {
     private BigInteger fontSize;
     private Boolean bold;
 
+    public DocxStyle(String name, DocxStyle copyFrom) {
+        this.name = name;
+        this.fontName = copyFrom.fontName;
+        this.fontSize = copyFrom.fontSize;
+        this.bold = copyFrom.bold;
+    }
+
     public DocxStyle(String name) {
         this.name = name;
     }

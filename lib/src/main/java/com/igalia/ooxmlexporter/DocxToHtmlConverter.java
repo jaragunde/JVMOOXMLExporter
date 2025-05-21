@@ -86,14 +86,15 @@ public class DocxToHtmlConverter implements DocumentConverter {
         }
 
         CTStyle ctStyle = styles.getStyle(styleId).getCTStyle();
-        DocxStyle style = new DocxStyle(styleId);
+        DocxStyle style;
 
         CTString basedOn = ctStyle.getBasedOn();
         if (basedOn != null) {
             DocxStyle baseStyle = createStyleObjectAndBasedOn(basedOn.getVal(), styles, styleList);
-            style.setFontName(baseStyle.getFontName());
-            style.setFontSize(baseStyle.getFontSize());
-            style.setBold(baseStyle.getBold());
+            style = new DocxStyle(styleId, baseStyle);
+        }
+        else {
+            style = new DocxStyle(styleId);
         }
         // A style can override attributes from the base style, that's why we do this
         // in second place.
