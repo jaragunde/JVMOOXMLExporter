@@ -49,7 +49,7 @@ public class DocxToHtmlConverter implements DocumentConverter {
         StringBuilder css = new StringBuilder();
         String fontName = textRegion.getFontName();
         if (fontName != null) {
-            css.append("font-family: \"" + fontName + "\"; ");
+            css.append("font-family: \"").append(fontName).append("\"; ");
         }
         if (textRegion.isBold()) {
             css.append("font-weight: bold; ");
@@ -59,11 +59,11 @@ public class DocxToHtmlConverter implements DocumentConverter {
         }
         Double fontSize = textRegion.getFontSizeAsDouble();
         if (fontSize != null) {
-            css.append("font-size: " + fontSize + "px; ");
+            css.append("font-size: ").append(fontSize).append("px; ");
         }
         String fontColor = textRegion.getColor();
         if (fontColor != null) {
-            css.append("color: #" + fontColor + "; ");
+            css.append("color: #").append(fontColor).append("; ");
         }
         return css.toString();
     }
