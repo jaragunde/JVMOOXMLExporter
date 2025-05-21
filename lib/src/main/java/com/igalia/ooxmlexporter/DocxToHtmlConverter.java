@@ -7,6 +7,7 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTStyle;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,6 +26,7 @@ public class DocxToHtmlConverter implements DocumentConverter {
             XWPFDocument docx = new XWPFDocument(new FileInputStream(inputFile));
             StringBuilder html = new StringBuilder();
             Set<String> usedStyles = new HashSet<String>();
+            Set<DocxStyle> styles = new HashSet<DocxStyle>();
 
             for (IBodyElement bodyElement : docx.getBodyElements()) {
                 if (bodyElement.getElementType() == BodyElementType.PARAGRAPH) {
@@ -41,9 +43,10 @@ public class DocxToHtmlConverter implements DocumentConverter {
                     html.append("</p>");
                 }
             }
-            expandStyleList(docx.getStyles(), usedStyles);
+            expandStyleList(docx.getStyles(), usedStyles, styles);
+            System.out.println(generateCSSForStyles(docx.getStyles(), styles));
             html.append("<style>")
-                    .append(generateCSSForStyles(docx.getStyles(), usedStyles))
+                    .append(generateCSSForStyles(docx.getStyles(), styles))
                     .append("</style>");
 
             FileOutputStream outputHtml = new FileOutputStream(outputFile);
@@ -56,32 +59,36 @@ public class DocxToHtmlConverter implements DocumentConverter {
 
     }
 
-    private String generateCSSForStyles(XWPFStyles styles, Set<String> usedStyles) {
+    private String generateCSSForStyles(XWPFStyles styles, Set<DocxStyle> styleList) {
         StringBuilder css = new StringBuilder();
-        for(String styleId : usedStyles) {
-            if (!styleId.isEmpty()) {
-                css.append(".").append(styleId).append("{");
-                css.append("} ");
-            }
+        for(DocxStyle style : styleList) {
+            css.append(style.toCSS());
         }
         return css.toString();
     }
 
-    private void expandStyleList(XWPFStyles styles, Set<String> usedStyles) {
+    private void expandStyleList(XWPFStyles styles, Set<String> usedStyles, Set<DocxStyle> styleList) {
         Set<String> originalList = new HashSet<String>(usedStyles);
         for (String styleId : originalList) {
             if (!styleId.isEmpty()) {
-                addBasedOnStyles(styleId, styles, usedStyles);
+                styleList.add(new DocxStyle(styleId));
+                addBasedOnStyles(styleId, styles, styleList);
             }
         }
     }
 
-    private void addBasedOnStyles(String styleId, XWPFStyles styles, Set<String> usedStyles) {
+    private void addBasedOnStyles(String styleId, XWPFStyles styles, Set<DocxStyle> styleList) {
         CTStyle ctStyle = styles.getStyle(styleId).getCTStyle();
+        DocxStyle style = new DocxStyle(styleId);
+        if (ctStyle.getRPr().getRFontsArray().length > 0) {
+            style.setFontName(ctStyle.getRPr().getRFontsArray()[0].getAscii());
+            style.setFontSize((BigInteger) ctStyle.getRPr().getSzArray()[0].getVal());
+        }
+        styleList.add(style);
+
         CTString basedOn = ctStyle.getBasedOn();
         if (basedOn != null) {
-            usedStyles.add(basedOn.getVal());
-            addBasedOnStyles(basedOn.getVal(), styles, usedStyles);
+            addBasedOnStyles(basedOn.getVal(), styles, styleList);
         }
     }
 
