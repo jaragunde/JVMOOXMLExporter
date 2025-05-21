@@ -78,6 +78,13 @@ public class DocxToHtmlConverter implements DocumentConverter {
     }
 
     private DocxStyle createStyleObjectAndBasedOn(String styleId, XWPFStyles styles, Set<DocxStyle> styleList) {
+        // Return the style from the list if it was already created
+        for (DocxStyle style : styleList) {
+            if (style.getName().equals(styleId)) {
+                return style;
+            }
+        }
+
         CTStyle ctStyle = styles.getStyle(styleId).getCTStyle();
         DocxStyle style = new DocxStyle(styleId);
 

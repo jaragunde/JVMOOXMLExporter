@@ -20,6 +20,10 @@ public class DocxStyle {
         this.fontSize = fontSize;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public String getFontName() {
         return fontName;
     }
