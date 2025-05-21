@@ -110,6 +110,10 @@ public class DocxToHtmlConverter implements DocumentConverter {
             // The presence of a `<w:b/>` tag indicates that bold is set.
             style.setItalic(true);
         }
+        if (ctStyle.getRPr().getColorArray().length > 0) {
+            // xgetVal() returns a STHexColorImpl object, which can output a string with RRGGBB values.
+            style.setFontColor(ctStyle.getRPr().getColorArray()[0].xgetVal().getStringValue());
+        }
         styleList.add(style);
         return style;
     }

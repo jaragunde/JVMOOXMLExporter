@@ -6,6 +6,7 @@ import java.util.Objects;
 public class DocxStyle {
     private String name;
     private String fontName;
+    private String fontColor;
     private BigInteger fontSize;
     private Boolean bold;
     private Boolean italic;
@@ -14,6 +15,7 @@ public class DocxStyle {
         this.name = name;
         this.fontName = copyFrom.fontName;
         this.fontSize = copyFrom.fontSize;
+        this.fontColor = copyFrom.fontColor;
         this.bold = copyFrom.bold;
         this.italic = copyFrom.italic;
     }
@@ -28,6 +30,10 @@ public class DocxStyle {
 
     public void setFontSize(BigInteger fontSize) {
         this.fontSize = fontSize;
+    }
+
+    public void setFontColor(String fontColor) {
+        this.fontColor = fontColor;
     }
 
     public void setBold(Boolean bold) {
@@ -48,6 +54,10 @@ public class DocxStyle {
 
     public BigInteger getFontSize() {
         return fontSize;
+    }
+
+    public String getFontColor() {
+        return fontColor;
     }
 
     public Boolean getBold() {
@@ -72,6 +82,9 @@ public class DocxStyle {
         }
         if (italic != null && italic) {
             css.append("font-style: italic; ");
+        }
+        if (fontColor != null) {
+            css.append("color: #").append(fontColor).append("; ");
         }
         css.append("} ");
         return css.toString();
