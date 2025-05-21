@@ -1,10 +1,14 @@
 package com.igalia.ooxmlexporter;
 
 import org.apache.poi.xwpf.usermodel.*;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTString;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTStyle;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 public class DocxToHtmlConverter implements DocumentConverter {
     private String inputFile;
@@ -20,6 +24,7 @@ public class DocxToHtmlConverter implements DocumentConverter {
         try {
             XWPFDocument docx = new XWPFDocument(new FileInputStream(inputFile));
             StringBuilder html = new StringBuilder();
+            Set<String> usedStyles = new HashSet<String>();
 
             for (IBodyElement bodyElement : docx.getBodyElements()) {
                 if (bodyElement.getElementType() == BodyElementType.PARAGRAPH) {
@@ -30,10 +35,16 @@ public class DocxToHtmlConverter implements DocumentConverter {
                                 .append("'>")
                                 .append(textRegion.text())
                                 .append("</span>");
+                        usedStyles.add(textRegion.getStyle());
                     }
+                    usedStyles.add(((XWPFParagraph) bodyElement).getStyle());
                     html.append("</p>");
                 }
             }
+            expandStyleList(docx.getStyles(), usedStyles);
+            html.append("<style>")
+                    .append(generateCSSForStyles(docx.getStyles(), usedStyles))
+                    .append("</style>");
 
             FileOutputStream outputHtml = new FileOutputStream(outputFile);
             outputHtml.write(html.toString().getBytes());
@@ -43,6 +54,35 @@ public class DocxToHtmlConverter implements DocumentConverter {
             throw new RuntimeException(e);
         }
 
+    }
+
+    private String generateCSSForStyles(XWPFStyles styles, Set<String> usedStyles) {
+        StringBuilder css = new StringBuilder();
+        for(String styleId : usedStyles) {
+            if (!styleId.isEmpty()) {
+                css.append(".").append(styleId).append("{");
+                css.append("} ");
+            }
+        }
+        return css.toString();
+    }
+
+    private void expandStyleList(XWPFStyles styles, Set<String> usedStyles) {
+        Set<String> originalList = new HashSet<String>(usedStyles);
+        for (String styleId : originalList) {
+            if (!styleId.isEmpty()) {
+                addBasedOnStyles(styleId, styles, usedStyles);
+            }
+        }
+    }
+
+    private void addBasedOnStyles(String styleId, XWPFStyles styles, Set<String> usedStyles) {
+        CTStyle ctStyle = styles.getStyle(styleId).getCTStyle();
+        CTString basedOn = ctStyle.getBasedOn();
+        if (basedOn != null) {
+            usedStyles.add(basedOn.getVal());
+            addBasedOnStyles(basedOn.getVal(), styles, usedStyles);
+        }
     }
 
     public String generateCSSForTextRegion(XWPFRun textRegion) {
