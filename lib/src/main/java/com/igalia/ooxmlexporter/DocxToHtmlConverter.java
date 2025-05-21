@@ -99,46 +99,32 @@ public class DocxToHtmlConverter implements DocumentConverter {
         // A style can override attributes from the base style, that's why we do this
         // in second place.
         if (ctStyle.getRPr().getRFontsArray().length > 0) {
-            style.setFontName(ctStyle.getRPr().getRFontsArray()[0].getAscii());
-            style.setFontSize((BigInteger) ctStyle.getRPr().getSzArray()[0].getVal());
+            style.getFontFormat().setFontName(ctStyle.getRPr().getRFontsArray()[0].getAscii());
+            style.getFontFormat().setFontSize((BigInteger) ctStyle.getRPr().getSzArray()[0].getVal());
         }
         if (ctStyle.getRPr().getBArray().length > 0) {
             // The presence of a `<w:b/>` tag indicates that bold is set.
-            style.setBold(true);
+            style.getFontFormat().setBold(true);
         }
         if (ctStyle.getRPr().getIArray().length > 0) {
             // The presence of a `<w:b/>` tag indicates that bold is set.
-            style.setItalic(true);
+            style.getFontFormat().setItalic(true);
         }
         if (ctStyle.getRPr().getColorArray().length > 0) {
             // xgetVal() returns a STHexColorImpl object, which can output a string with RRGGBB values.
-            style.setFontColor(ctStyle.getRPr().getColorArray()[0].xgetVal().getStringValue());
+            style.getFontFormat().setFontColor(ctStyle.getRPr().getColorArray()[0].xgetVal().getStringValue());
         }
         styleList.add(style);
         return style;
     }
 
     public String generateCSSForTextRegion(XWPFRun textRegion) {
-        StringBuilder css = new StringBuilder();
-        String fontName = textRegion.getFontName();
-        if (fontName != null) {
-            css.append("font-family: \"").append(fontName).append("\"; ");
-        }
-        if (textRegion.isBold()) {
-            css.append("font-weight: bold; ");
-        }
-        if (textRegion.isItalic()) {
-            css.append("font-style: italic; ");
-        }
         Double fontSize = textRegion.getFontSizeAsDouble();
-        if (fontSize != null) {
-            css.append("font-size: ").append(fontSize).append("px; ");
-        }
-        String fontColor = textRegion.getColor();
-        if (fontColor != null) {
-            css.append("color: #").append(fontColor).append("; ");
-        }
-        return css.toString();
+        FontFormat fontFormat = new FontFormat(textRegion.getFontName(),
+                textRegion.getColor(),
+                fontSize != null ? BigInteger.valueOf(fontSize.longValue()) : null,
+                textRegion.isBold(), textRegion.isItalic());
+        return fontFormat.toCSS();
     }
 
     @Override
