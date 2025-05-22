@@ -8,15 +8,15 @@ public class DocumentConverterFactory {
     }
 
     public static DocumentConverter getConverterForDocument(String inputFile, DocumentFormat format) {
-        if (inputFile.endsWith(".pptx") && format == DocumentFormat.PDF) {
+        if (inputFile.toLowerCase().endsWith(".pptx") && format == DocumentFormat.PDF) {
             return new PptxConverter(inputFile);
-        } else if (inputFile.endsWith(".docx") && format == DocumentFormat.PDF) {
+        } else if (inputFile.toLowerCase().endsWith(".docx") && format == DocumentFormat.PDF) {
             return new DocxConverter(inputFile);
-        } else if (inputFile.endsWith(".docx") && format == DocumentFormat.HTML) {
+        } else if (inputFile.toLowerCase().endsWith(".docx") && format == DocumentFormat.HTML) {
             return new DocxToHtmlConverter(inputFile);
-        } else if (inputFile.endsWith(".xls") && format == DocumentFormat.HTML) {
+        } else if (inputFile.toLowerCase().endsWith(".xls") && format == DocumentFormat.HTML) {
             return new XlsxConverter(inputFile);
-        } else if (inputFile.endsWith(".xlsx") && format == DocumentFormat.HTML) {
+        } else if (inputFile.toLowerCase().endsWith(".xlsx") && format == DocumentFormat.HTML) {
             return new XlsxConverter(inputFile);
         } else {
             return null;
