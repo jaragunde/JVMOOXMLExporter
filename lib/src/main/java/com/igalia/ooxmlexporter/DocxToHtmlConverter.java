@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,6 +45,17 @@ public class DocxToHtmlConverter implements DocumentConverter {
                     html.append("</p>");
                 }
             }
+
+            for (XWPFPictureData pictureData : docx.getAllPictures()) {
+                byte[] rawData = pictureData.getData();
+                byte[] encodedData = Base64.getEncoder().encode(rawData);
+                html.append("<img src=\"data:")
+                        .append(pictureData.getPictureTypeEnum().getContentType())
+                        .append(";base64,")
+                        .append(new String(encodedData))
+                        .append("\">");
+            }
+
             expandStyleList(docx.getStyles(), usedStyles, styles);
             System.out.println(generateCSSForStyles(docx.getStyles(), styles));
             html.append("<style>")
