@@ -1,15 +1,23 @@
 package com.igalia.ooxmlexporter;
 
 public class DocumentConverterFactory {
-    public static DocumentConverter getConverterForDocument(String inputFile, String outputFile) {
-        if (inputFile.endsWith(".pptx")) {
-            return new PptxConverter(inputFile, outputFile);
-        } else if (inputFile.endsWith(".docx")) {
-            return new DocxToHtmlConverter(inputFile, outputFile);
-        } else if (inputFile.endsWith(".xls")) {
-            return new XlsxConverter(inputFile, outputFile);
-        } else if (inputFile.endsWith(".xlsx")) {
-            return new XlsxConverter(inputFile, outputFile);
+
+    public static enum DocumentFormat {
+        PDF,
+        HTML
+    }
+
+    public static DocumentConverter getConverterForDocument(String inputFile, DocumentFormat format) {
+        if (inputFile.endsWith(".pptx") && format == DocumentFormat.PDF) {
+            return new PptxConverter(inputFile);
+        } else if (inputFile.endsWith(".docx") && format == DocumentFormat.PDF) {
+            return new DocxConverter(inputFile);
+        } else if (inputFile.endsWith(".docx") && format == DocumentFormat.HTML) {
+            return new DocxToHtmlConverter(inputFile);
+        } else if (inputFile.endsWith(".xls") && format == DocumentFormat.HTML) {
+            return new XlsxConverter(inputFile);
+        } else if (inputFile.endsWith(".xlsx") && format == DocumentFormat.HTML) {
+            return new XlsxConverter(inputFile);
         } else {
             return null;
         }

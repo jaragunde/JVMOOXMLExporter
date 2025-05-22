@@ -18,9 +18,8 @@ public class DocxConverter implements DocumentConverter {
     private String inputFile;
     private String outputFile;
 
-    public DocxConverter(String inputFile, String outputFile) {
+    public DocxConverter(String inputFile) {
         this.inputFile = inputFile;
-        this.outputFile = outputFile + "." + getDefaultExtension();
     }
 
     private PDFont defaultFont() {
@@ -45,7 +44,9 @@ public class DocxConverter implements DocumentConverter {
         }
     }
 
-    public void convert() {
+    @Override
+    public void convert(String outputFile) {
+        this.outputFile = outputFile + "." + getDefaultExtension();
         try {
             XWPFDocument docx = new XWPFDocument(new FileInputStream(inputFile));
             document = new PDDocument();
@@ -72,7 +73,7 @@ public class DocxConverter implements DocumentConverter {
                 }
             }
             contentStream.close();
-            document.save(new File(outputFile));
+            document.save(new File(this.outputFile));
             document.close();
         } catch (IOException e) {
             throw new RuntimeException(e);

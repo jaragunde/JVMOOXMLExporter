@@ -10,14 +10,14 @@ public class XlsxConverter implements DocumentConverter {
     private String inputFile;
     private String outputFile;
 
-    public XlsxConverter(String inputFile, String outputFile) {
+    public XlsxConverter(String inputFile) {
         this.inputFile = inputFile;
-        this.outputFile = outputFile + "." + getDefaultExtension();
     }
 
     @Override
-    public void convert() {
-        try (PrintWriter pw = new PrintWriter(outputFile, StandardCharsets.UTF_8.name())) {
+    public void convert(String outputFile) {
+        this.outputFile = outputFile + "." + getDefaultExtension();
+        try (PrintWriter pw = new PrintWriter(this.outputFile, StandardCharsets.UTF_8.name())) {
             ToHtml toHtml = ToHtml.create(inputFile, pw);
             toHtml.setCompleteHTML(true);
             toHtml.printPage();

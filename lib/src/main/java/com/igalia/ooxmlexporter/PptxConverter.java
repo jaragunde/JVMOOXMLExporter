@@ -29,9 +29,8 @@ public class PptxConverter implements DocumentConverter {
 
     private static final Logger logger = LogManager.getLogger(PptxConverter.class);
 
-    public PptxConverter(String inputFile, String outputFile) {
+    public PptxConverter(String inputFile) {
         this.inputFile = inputFile;
-        this.outputFile = outputFile + "." + getDefaultExtension();
     }
 
     private PdfBoxGraphics2DFontTextDrawer createFontTextDrawer() {
@@ -52,7 +51,9 @@ public class PptxConverter implements DocumentConverter {
         }
     }
 
-    public void convert() {
+    @Override
+    public void convert(String outputFile) {
+        this.outputFile = outputFile + "." + getDefaultExtension();
         try {
             XMLSlideShow ppt = new XMLSlideShow(new FileInputStream(inputFile));
             document = new PDDocument();
@@ -69,7 +70,7 @@ public class PptxConverter implements DocumentConverter {
                     convertSlide(ppt, new PdfBoxGraphics2DFontTextDrawerDefaultFonts(), slide);
                 }
             }
-            document.save(new File(outputFile));
+            document.save(new File(this.outputFile));
             document.close();
         } catch (IOException e) {
             throw new RuntimeException(e);

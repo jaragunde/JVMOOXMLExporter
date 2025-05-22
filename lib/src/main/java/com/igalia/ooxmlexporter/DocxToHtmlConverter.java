@@ -15,13 +15,13 @@ public class DocxToHtmlConverter implements DocumentConverter {
     private String inputFile;
     private String outputFile;
 
-    public DocxToHtmlConverter(String inputFile, String outputFile) {
+    public DocxToHtmlConverter(String inputFile) {
         this.inputFile = inputFile;
-        this.outputFile = outputFile + "." + getDefaultExtension();
     }
 
     @Override
-    public void convert() {
+    public void convert(String outputFile) {
+        this.outputFile = outputFile + "." + getDefaultExtension();
         try {
             XWPFDocument docx = new XWPFDocument(new FileInputStream(inputFile));
             StringBuilder html = new StringBuilder();
@@ -50,7 +50,7 @@ public class DocxToHtmlConverter implements DocumentConverter {
                     .append(generateCSSForStyles(docx.getStyles(), styles))
                     .append("</style>");
 
-            FileOutputStream outputHtml = new FileOutputStream(outputFile);
+            FileOutputStream outputHtml = new FileOutputStream(this.outputFile);
             outputHtml.write(html.toString().getBytes());
             outputHtml.close();
             docx.close();

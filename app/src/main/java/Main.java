@@ -1,7 +1,23 @@
 import com.igalia.ooxmlexporter.DocumentConverter;
 import com.igalia.ooxmlexporter.DocumentConverterFactory;
+import com.igalia.ooxmlexporter.PptxConverter;
 
 public class Main {
+
+    public static DocumentConverterFactory.DocumentFormat getDefaultFormat(String inputFile, String outputFile) {
+        if (outputFile.toLowerCase().endsWith("html")) {
+            return DocumentConverterFactory.DocumentFormat.HTML;
+        } else if (outputFile.toLowerCase().endsWith("pdf")) {
+            return DocumentConverterFactory.DocumentFormat.PDF;
+        } else if (inputFile.toLowerCase().endsWith(".pptx")) {
+            // For PowerPoint we only have a PDF converter so we default to it
+            return DocumentConverterFactory.DocumentFormat.PDF;
+        } else {
+            // Otherwise, default to HTML which is generally more mature
+            return DocumentConverterFactory.DocumentFormat.HTML;
+        }
+    }
+
     public static void main (String[] args) {
         if (args.length == 0) {
             System.out.println("""
@@ -17,9 +33,10 @@ public class Main {
             outputFile = args[1];
         }
 
-        DocumentConverter converter = DocumentConverterFactory.getConverterForDocument(inputFile, outputFile);
+        DocumentConverterFactory.DocumentFormat outputFormat = getDefaultFormat(inputFile, outputFile);
+        DocumentConverter converter = DocumentConverterFactory.getConverterForDocument(inputFile, outputFormat);
         if (converter != null) {
-            converter.convert();
+            converter.convert(outputFile);
         } else {
             System.out.println("File type unsupported.");
             System.exit(0);
