@@ -28,9 +28,11 @@ public class Main {
             System.exit(0);
         }
         String inputFile = args[0];
-        String outputFile = inputFile; // extension will be added by the DocumentConverter
+        String outputFile;
         if (args.length > 1) {
             outputFile = args[1];
+        } else {
+            outputFile = inputFile; // extension will be added by the DocumentConverter
         }
 
         DocumentConverterFactory.DocumentFormat outputFormat = getDefaultFormat(inputFile, outputFile);
