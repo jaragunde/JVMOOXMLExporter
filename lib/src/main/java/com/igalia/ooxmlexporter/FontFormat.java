@@ -5,13 +5,13 @@ import java.math.BigInteger;
 public class FontFormat {
     private String fontName;
     private String fontColor;
-    private BigInteger fontSize;
+    private Double fontSize;  // Font size is expressed in points.
     private Boolean bold;
     private Boolean italic;
 
     public FontFormat() { }
 
-    public FontFormat(String fontName, String fontColor, BigInteger fontSize, Boolean bold, Boolean italic) {
+    public FontFormat(String fontName, String fontColor, Double fontSize, Boolean bold, Boolean italic) {
         this.fontName = fontName;
         this.fontColor = fontColor;
         this.fontSize = fontSize;
@@ -23,7 +23,7 @@ public class FontFormat {
         this.fontName = fontName;
     }
 
-    public void setFontSize(BigInteger fontSize) {
+    public void setFontSize(Double fontSize) {
         this.fontSize = fontSize;
     }
 
@@ -43,7 +43,7 @@ public class FontFormat {
         return fontName;
     }
 
-    public BigInteger getFontSize() {
+    public Double getFontSize() {
         return fontSize;
     }
 
@@ -65,7 +65,9 @@ public class FontFormat {
             css.append("font-family: \"").append(fontName).append("\"; ");
         }
         if (fontSize != null) {
-            css.append("font-size: ").append(fontSize).append("px; ");
+            // We multiply font size by 4/3 to translate points into pixels.
+            double sizeInPx = fontSize * 4 / 3;
+            css.append("font-size: ").append(sizeInPx).append("px; ");
         }
         if (bold != null && bold) {
             css.append("font-weight: bold; ");

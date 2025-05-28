@@ -114,7 +114,9 @@ public class DocxToHtmlConverter implements DocumentConverter {
             style.getFontFormat().setFontName(ctStyle.getRPr().getRFontsArray()[0].getAscii());
         }
         if (ctStyle.getRPr().getSzArray().length > 0) {
-            style.getFontFormat().setFontSize((BigInteger) ctStyle.getRPr().getSzArray()[0].getVal());
+            BigInteger size = (BigInteger) ctStyle.getRPr().getSzArray()[0].getVal();
+            // Size in OOXML is expressed as "half points", so we divide by two.
+            style.getFontFormat().setFontSize(size.doubleValue() / 2);
         }
         if (ctStyle.getRPr().getBArray().length > 0) {
             // The presence of a `<w:b/>` tag indicates that bold is set.
@@ -133,10 +135,9 @@ public class DocxToHtmlConverter implements DocumentConverter {
     }
 
     public String generateCSSForTextRegion(XWPFRun textRegion) {
-        Double fontSize = textRegion.getFontSizeAsDouble();
         FontFormat fontFormat = new FontFormat(textRegion.getFontName(),
                 textRegion.getColor(),
-                fontSize != null ? BigInteger.valueOf(fontSize.longValue()) : null,
+                textRegion.getFontSizeAsDouble(),
                 textRegion.isBold(), textRegion.isItalic());
         return fontFormat.toCSS();
     }
