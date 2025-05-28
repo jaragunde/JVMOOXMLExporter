@@ -112,6 +112,8 @@ public class DocxToHtmlConverter implements DocumentConverter {
         // in second place.
         if (ctStyle.getRPr().getRFontsArray().length > 0) {
             style.getFontFormat().setFontName(ctStyle.getRPr().getRFontsArray()[0].getAscii());
+        }
+        if (ctStyle.getRPr().getSzArray().length > 0) {
             style.getFontFormat().setFontSize((BigInteger) ctStyle.getRPr().getSzArray()[0].getVal());
         }
         if (ctStyle.getRPr().getBArray().length > 0) {
