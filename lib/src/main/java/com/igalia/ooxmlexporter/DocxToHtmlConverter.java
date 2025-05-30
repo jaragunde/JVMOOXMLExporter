@@ -40,20 +40,21 @@ public class DocxToHtmlConverter implements DocumentConverter {
                                 .append(textRegion.text())
                                 .append("</span>");
                         usedStyles.add(textRegion.getStyle());
+
+                        for (XWPFPicture picture : textRegion.getEmbeddedPictures()) {
+                            XWPFPictureData pictureData = picture.getPictureData();
+                            byte[] rawData = pictureData.getData();
+                            byte[] encodedData = Base64.getEncoder().encode(rawData);
+                            html.append("<img src=\"data:")
+                                    .append(pictureData.getPictureTypeEnum().getContentType())
+                                    .append(";base64,")
+                                    .append(new String(encodedData))
+                                    .append("\">");
+                        }
                     }
                     usedStyles.add(paragraph.getStyle());
                     html.append("</p>");
                 }
-            }
-
-            for (XWPFPictureData pictureData : docx.getAllPictures()) {
-                byte[] rawData = pictureData.getData();
-                byte[] encodedData = Base64.getEncoder().encode(rawData);
-                html.append("<img src=\"data:")
-                        .append(pictureData.getPictureTypeEnum().getContentType())
-                        .append(";base64,")
-                        .append(new String(encodedData))
-                        .append("\">");
             }
 
             expandStyleList(docx.getStyles(), usedStyles, styles);
