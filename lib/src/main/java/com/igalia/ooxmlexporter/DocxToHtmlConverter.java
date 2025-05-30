@@ -45,11 +45,14 @@ public class DocxToHtmlConverter implements DocumentConverter {
                             XWPFPictureData pictureData = picture.getPictureData();
                             byte[] rawData = pictureData.getData();
                             byte[] encodedData = Base64.getEncoder().encode(rawData);
+                            double pictureWidth = picture.getWidth() * 4/3; // convert from pt to px
                             html.append("<img src=\"data:")
                                     .append(pictureData.getPictureTypeEnum().getContentType())
                                     .append(";base64,")
                                     .append(new String(encodedData))
-                                    .append("\">");
+                                    .append("\" width=\"")
+                                    .append(pictureWidth)
+                                    .append("\" align=\"top\" style=\"float:left;\">");
                         }
                     }
                     usedStyles.add(paragraph.getStyle());
