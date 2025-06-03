@@ -3,6 +3,7 @@ package com.igalia.ooxmlexporter;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTString;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTStyle;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STJc;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -155,6 +156,23 @@ public class DocxToHtmlConverter implements DocumentConverter {
             // xgetVal() returns a STHexColorImpl object, which can output a string with RRGGBB values.
             style.getFontFormat().setFontColor(ctStyle.getRPr().getColorArray()[0].xgetVal().getStringValue());
         }
+        if (ctStyle.getPPr().getJc() != null) {
+            switch(ctStyle.getPPr().getJc().getVal().toString()) {
+                case "start":
+                    style.getFontFormat().setParagraphAlignment(ParagraphAlignment.START);
+                    break;
+                case "end":
+                    style.getFontFormat().setParagraphAlignment(ParagraphAlignment.END);
+                    break;
+                case "center":
+                    style.getFontFormat().setParagraphAlignment(ParagraphAlignment.CENTER);
+                    break;
+                case "both":
+                    style.getFontFormat().setParagraphAlignment(ParagraphAlignment.BOTH);
+                    break;
+            }
+        }
+
         styleList.add(style);
         return style;
     }

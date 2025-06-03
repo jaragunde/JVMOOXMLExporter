@@ -1,5 +1,7 @@
 package com.igalia.ooxmlexporter;
 
+import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
+
 import java.math.BigInteger;
 
 public class FontFormat {
@@ -8,6 +10,7 @@ public class FontFormat {
     private Double fontSize;  // Font size is expressed in points.
     private Boolean bold;
     private Boolean italic;
+    private ParagraphAlignment alignment;
 
     public FontFormat() { }
 
@@ -39,6 +42,10 @@ public class FontFormat {
         this.italic = italic;
     }
 
+    public void setParagraphAlignment(ParagraphAlignment alignment) {
+        this.alignment = alignment;
+    }
+
     public String getFontName() {
         return fontName;
     }
@@ -59,6 +66,10 @@ public class FontFormat {
         return italic;
     }
 
+    public ParagraphAlignment getAlignment() {
+        return alignment;
+    }
+
     public String toCSS() {
         StringBuilder css = new StringBuilder();
         if (fontName != null) {
@@ -77,6 +88,24 @@ public class FontFormat {
         }
         if (fontColor != null) {
             css.append("color: #").append(fontColor).append("; ");
+        }
+        if (alignment != null) {
+            switch (alignment) {
+                case ParagraphAlignment.LEFT:
+                case ParagraphAlignment.START:
+                    css.append("text-align: left;");
+                    break;
+                case ParagraphAlignment.RIGHT:
+                case ParagraphAlignment.END:
+                    css.append("text-align: right;");
+                    break;
+                case ParagraphAlignment.CENTER:
+                    css.append("text-align: center;");
+                    break;
+                case ParagraphAlignment.BOTH:
+                    css.append("text-align: justify;");
+                    break;
+            }
         }
         return css.toString();
     }
