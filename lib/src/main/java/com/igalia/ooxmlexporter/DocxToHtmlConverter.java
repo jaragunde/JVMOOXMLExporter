@@ -32,7 +32,28 @@ public class DocxToHtmlConverter implements DocumentConverter {
             for (IBodyElement bodyElement : docx.getBodyElements()) {
                 if (bodyElement.getElementType() == BodyElementType.PARAGRAPH) {
                     XWPFParagraph paragraph = (XWPFParagraph) bodyElement;
-                    html.append("<p class=\"").append(paragraph.getStyle()).append("\">");
+                    StringBuilder elementCSS = new StringBuilder();
+                    switch (paragraph.getAlignment()) {
+                        case ParagraphAlignment.LEFT:
+                        case ParagraphAlignment.START:
+                            elementCSS.append("text-align: left;");
+                            break;
+                        case ParagraphAlignment.RIGHT:
+                        case ParagraphAlignment.END:
+                            elementCSS.append("text-align: right;");
+                            break;
+                        case ParagraphAlignment.CENTER:
+                            elementCSS.append("text-align: center;");
+                            break;
+                        case ParagraphAlignment.BOTH:
+                            elementCSS.append("text-align: justify;");
+                            break;
+                    }
+                    html.append("<p class=\"")
+                            .append(paragraph.getStyle())
+                            .append("\" style=\"")
+                            .append(elementCSS)
+                            .append("\">");
                     for (XWPFRun textRegion : paragraph.getRuns()) {
                         html.append("<span style='")
                                 .append(generateCSSForTextRegion(textRegion))
