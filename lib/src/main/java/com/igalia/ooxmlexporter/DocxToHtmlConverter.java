@@ -33,31 +33,10 @@ public class DocxToHtmlConverter implements DocumentConverter {
             for (IBodyElement bodyElement : docx.getBodyElements()) {
                 if (bodyElement.getElementType() == BodyElementType.PARAGRAPH) {
                     XWPFParagraph paragraph = (XWPFParagraph) bodyElement;
-                    StringBuilder elementCSS = new StringBuilder();
-                    // getAlignment() falls back to LEFT if there is no value, so we need to verify
-                    // if the parameter is set by checking the XML directly before we call it.
-                    if (paragraph.getCTP().getPPr().isSetJc()) {
-                        switch (paragraph.getAlignment()) {
-                            case ParagraphAlignment.LEFT:
-                            case ParagraphAlignment.START:
-                                elementCSS.append("text-align: left;");
-                                break;
-                            case ParagraphAlignment.RIGHT:
-                            case ParagraphAlignment.END:
-                                elementCSS.append("text-align: right;");
-                                break;
-                            case ParagraphAlignment.CENTER:
-                                elementCSS.append("text-align: center;");
-                                break;
-                            case ParagraphAlignment.BOTH:
-                                elementCSS.append("text-align: justify;");
-                                break;
-                        }
-                    }
                     html.append("<p class=\"")
                             .append(paragraph.getStyle())
                             .append("\" style=\"")
-                            .append(elementCSS)
+                            .append(generateCSSForParagraph(paragraph))
                             .append("\">");
                     for (XWPFRun textRegion : paragraph.getRuns()) {
                         html.append("<span style='")
@@ -187,6 +166,17 @@ public class DocxToHtmlConverter implements DocumentConverter {
                 textRegion.getFontSizeAsDouble(),
                 textRegion.isBold(), textRegion.isItalic());
         return fontFormat.toCSS();
+    }
+
+    public String generateCSSForParagraph(XWPFParagraph paragraph) {
+        // getAlignment() falls back to LEFT if there is no value, so we need to verify
+        // if the parameter is set by checking the XML directly before we call it.
+        if (paragraph.getCTP().getPPr().isSetJc()) {
+            FontFormat fontFormat = new FontFormat();
+            fontFormat.setParagraphAlignment(paragraph.getAlignment());
+            return fontFormat.toCSS();
+        }
+        return new String();
     }
 
     @Override
