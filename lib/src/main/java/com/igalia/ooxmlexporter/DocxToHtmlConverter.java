@@ -3,7 +3,6 @@ package com.igalia.ooxmlexporter;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTString;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTStyle;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.STJc;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -17,6 +16,9 @@ public class DocxToHtmlConverter implements DocumentConverter {
     private String inputFile;
     private String outputFile;
 
+    private Set<DocxStyle> styleList = new HashSet<DocxStyle>();
+    private XWPFDocument docx;
+
     public DocxToHtmlConverter(String inputFile) {
         this.inputFile = inputFile;
     }
@@ -25,10 +27,9 @@ public class DocxToHtmlConverter implements DocumentConverter {
     public void convert(String outputFile) {
         this.outputFile = outputFile + "." + getDefaultExtension();
         try {
-            XWPFDocument docx = new XWPFDocument(new FileInputStream(inputFile));
+            docx = new XWPFDocument(new FileInputStream(inputFile));
             StringBuilder html = new StringBuilder();
             Set<String> usedStyles = new HashSet<String>();
-            Set<DocxStyle> styles = new HashSet<DocxStyle>();
 
             for (IBodyElement bodyElement : docx.getBodyElements()) {
                 if (bodyElement.getElementType() == BodyElementType.PARAGRAPH) {
@@ -65,10 +66,9 @@ public class DocxToHtmlConverter implements DocumentConverter {
                 }
             }
 
-            expandStyleList(docx.getStyles(), usedStyles, styles);
-            System.out.println(generateCSSForStyles(docx.getStyles(), styles));
+            generateStyleObjects(usedStyles);
             html.append("<style>")
-                    .append(generateCSSForStyles(docx.getStyles(), styles))
+                    .append(generateCSSForStyles(styleList))
                     .append("</style>");
 
             FileOutputStream outputHtml = new FileOutputStream(this.outputFile);
@@ -81,7 +81,7 @@ public class DocxToHtmlConverter implements DocumentConverter {
 
     }
 
-    private String generateCSSForStyles(XWPFStyles styles, Set<DocxStyle> styleList) {
+    private static String generateCSSForStyles(Set<DocxStyle> styleList) {
         StringBuilder css = new StringBuilder();
         for(DocxStyle style : styleList) {
             css.append(style.toCSS());
@@ -89,16 +89,15 @@ public class DocxToHtmlConverter implements DocumentConverter {
         return css.toString();
     }
 
-    private void expandStyleList(XWPFStyles styles, Set<String> usedStyles, Set<DocxStyle> styleList) {
-        Set<String> originalList = new HashSet<String>(usedStyles);
-        for (String styleId : originalList) {
+    private void generateStyleObjects(Set<String> usedStyles) {
+        for (String styleId : usedStyles) {
             if (!styleId.isEmpty()) {
-                createStyleObjectAndBasedOn(styleId, styles, styleList);
+                createAndAddStyleObject(styleId);
             }
         }
     }
 
-    private DocxStyle createStyleObjectAndBasedOn(String styleId, XWPFStyles styles, Set<DocxStyle> styleList) {
+    private DocxStyle createAndAddStyleObject(String styleId) {
         // Return the style from the list if it was already created
         for (DocxStyle style : styleList) {
             if (style.getName().equals(styleId)) {
@@ -106,12 +105,12 @@ public class DocxToHtmlConverter implements DocumentConverter {
             }
         }
 
-        CTStyle ctStyle = styles.getStyle(styleId).getCTStyle();
+        CTStyle ctStyle = docx.getStyles().getStyle(styleId).getCTStyle();
         DocxStyle style;
 
         CTString basedOn = ctStyle.getBasedOn();
         if (basedOn != null) {
-            DocxStyle baseStyle = createStyleObjectAndBasedOn(basedOn.getVal(), styles, styleList);
+            DocxStyle baseStyle = createAndAddStyleObject(basedOn.getVal());
             style = new DocxStyle(styleId, baseStyle);
         }
         else {
@@ -160,7 +159,7 @@ public class DocxToHtmlConverter implements DocumentConverter {
         return style;
     }
 
-    public String generateCSSForTextRegion(XWPFRun textRegion) {
+    private static String generateCSSForTextRegion(XWPFRun textRegion) {
         FontFormat fontFormat = new FontFormat(textRegion.getFontName(),
                 textRegion.getColor(),
                 textRegion.getFontSizeAsDouble(),
@@ -168,7 +167,7 @@ public class DocxToHtmlConverter implements DocumentConverter {
         return fontFormat.toCSS();
     }
 
-    public String generateCSSForParagraph(XWPFParagraph paragraph) {
+    private static String generateCSSForParagraph(XWPFParagraph paragraph) {
         // getAlignment() falls back to LEFT if there is no value, so we need to verify
         // if the parameter is set by checking the XML directly before we call it.
         if (paragraph.getCTP().getPPr().isSetJc()) {
