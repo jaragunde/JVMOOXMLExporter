@@ -34,21 +34,25 @@ public class DocxToHtmlConverter implements DocumentConverter {
                 if (bodyElement.getElementType() == BodyElementType.PARAGRAPH) {
                     XWPFParagraph paragraph = (XWPFParagraph) bodyElement;
                     StringBuilder elementCSS = new StringBuilder();
-                    switch (paragraph.getAlignment()) {
-                        case ParagraphAlignment.LEFT:
-                        case ParagraphAlignment.START:
-                            elementCSS.append("text-align: left;");
-                            break;
-                        case ParagraphAlignment.RIGHT:
-                        case ParagraphAlignment.END:
-                            elementCSS.append("text-align: right;");
-                            break;
-                        case ParagraphAlignment.CENTER:
-                            elementCSS.append("text-align: center;");
-                            break;
-                        case ParagraphAlignment.BOTH:
-                            elementCSS.append("text-align: justify;");
-                            break;
+                    // getAlignment() falls back to LEFT if there is no value, so we need to verify
+                    // if the parameter is set by checking the XML directly before we call it.
+                    if (paragraph.getCTP().getPPr().isSetJc()) {
+                        switch (paragraph.getAlignment()) {
+                            case ParagraphAlignment.LEFT:
+                            case ParagraphAlignment.START:
+                                elementCSS.append("text-align: left;");
+                                break;
+                            case ParagraphAlignment.RIGHT:
+                            case ParagraphAlignment.END:
+                                elementCSS.append("text-align: right;");
+                                break;
+                            case ParagraphAlignment.CENTER:
+                                elementCSS.append("text-align: center;");
+                                break;
+                            case ParagraphAlignment.BOTH:
+                                elementCSS.append("text-align: justify;");
+                                break;
+                        }
                     }
                     html.append("<p class=\"")
                             .append(paragraph.getStyle())
