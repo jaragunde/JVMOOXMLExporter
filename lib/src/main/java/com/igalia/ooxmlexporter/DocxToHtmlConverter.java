@@ -64,6 +64,20 @@ public class DocxToHtmlConverter implements DocumentConverter {
                     usedStyles.add(paragraph.getStyle());
                     html.append("</p>");
                 }
+                if (bodyElement.getElementType() == BodyElementType.TABLE) {
+                    XWPFTable table = (XWPFTable) bodyElement;
+                    html.append("<table>");
+                    for (XWPFTableRow row: table.getRows()) {
+                        html.append("<tr>");
+                        for (XWPFTableCell cell: row.getTableCells()) {
+                            html.append("<td>")
+                                    .append(cell.getText())
+                                    .append("</td>");
+                        }
+                        html.append("</tr>");
+                    }
+                    html.append("</table>");
+                }
             }
 
             generateStyleObjects(usedStyles);
