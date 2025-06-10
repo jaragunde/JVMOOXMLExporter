@@ -1,8 +1,7 @@
 package com.igalia.ooxmlexporter;
 
 import org.apache.poi.xwpf.usermodel.*;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTString;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTStyle;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -66,11 +65,15 @@ public class DocxToHtmlConverter implements DocumentConverter {
                 }
                 if (bodyElement.getElementType() == BodyElementType.TABLE) {
                     XWPFTable table = (XWPFTable) bodyElement;
-                    html.append("<table>");
+                    html.append("<table style='")
+                            .append(generateCSSForTable(table))
+                            .append("'>");
                     for (XWPFTableRow row: table.getRows()) {
                         html.append("<tr>");
                         for (XWPFTableCell cell: row.getTableCells()) {
-                            html.append("<td>")
+                            html.append("<td style='")
+                                    .append(generateCSSForTableCell(cell))
+                                    .append("'>")
                                     .append(cell.getText())
                                     .append("</td>");
                         }
@@ -190,6 +193,61 @@ public class DocxToHtmlConverter implements DocumentConverter {
             return fontFormat.toCSS();
         }
         return new String();
+    }
+
+    private static String generateCSSForTable(XWPFTable table) {
+        return "border-collapse: collapse;";
+    }
+
+    private static String generateCSSForTableCell(XWPFTableCell cell) {
+        StringBuilder css = new StringBuilder();
+        CTBorder topBorder = cell.getCTTc().getTcPr().getTcBorders().getTop();
+        // We convert line size from half points into points, dividing by two.
+        // Then we translate points into pixels, multiplying by 4/3.
+        // The result is (size / 2) * 4/3 = size * 4/6 = size * 2/3.
+        if (topBorder != null) {
+            css.append("border-top-width: ").append(topBorder.getSz().doubleValue() * 2 / 3).append("px; ")
+                    .append("border-top-color: #").append(topBorder.xgetColor().getStringValue()).append("; ")
+                    .append("border-top-style: ").append(translateBorderValue(topBorder.getVal())).append("; ");
+        }
+        CTBorder bottomBorder = cell.getCTTc().getTcPr().getTcBorders().getBottom();
+        if (bottomBorder != null) {
+            css.append("border-bottom-width: ").append(bottomBorder.getSz().doubleValue() * 2 / 3).append("px; ")
+                    .append("border-bottom-color: #").append(bottomBorder.xgetColor().getStringValue()).append("; ")
+                    .append("border-bottom-style: ").append(translateBorderValue(bottomBorder.getVal())).append("; ");
+        }
+        CTBorder leftBorder = cell.getCTTc().getTcPr().getTcBorders().getStart();
+        if (leftBorder != null) {
+            css.append("border-left-width: ").append(leftBorder.getSz().doubleValue() * 2 / 3).append("px; ")
+                    .append("border-left-color: #").append(leftBorder.xgetColor().getStringValue()).append("; ")
+                    .append("border-left-style: ").append(translateBorderValue(leftBorder.getVal())).append("; ");
+        }
+        CTBorder rightBorder = cell.getCTTc().getTcPr().getTcBorders().getEnd();
+        if (rightBorder != null) {
+            css.append("border-right-width: ").append(rightBorder.getSz().doubleValue() * 2 / 3).append("px; ")
+                    .append("border-right-color: #").append(rightBorder.xgetColor().getStringValue()).append("; ")
+                    .append("border-right-style: ").append(translateBorderValue(rightBorder.getVal())).append(";" );
+        }
+        System.out.println(css);
+        return css.toString();
+    }
+
+    private static String translateBorderValue(STBorder.Enum ooxmlValue) {
+        switch (ooxmlValue.toString()) {
+            case "nil":
+            case "none":
+                return "none";
+            case "single":
+                return "solid";
+            case "dotted":
+                return "dotted";
+            case "dashed":
+                return "dashed";
+            case "double":
+                return "double";
+            default:
+                return "solid";
+        }
     }
 
     @Override
