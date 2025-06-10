@@ -196,7 +196,22 @@ public class DocxToHtmlConverter implements DocumentConverter {
     }
 
     private static String generateCSSForTable(XWPFTable table) {
-        return "border-collapse: collapse;";
+        StringBuilder css = new StringBuilder();
+        css.append("border-collapse: collapse; ");
+        switch(table.getWidthType()) {
+            // POI docs say: "If the width type is AUTO, DXA, or NIL, the value is 20ths of a point".
+            // To translate points into pixels, we multiply by 4/3.
+            case DXA:
+            case AUTO:
+            case NIL:
+                css.append("width: ").append(table.getWidth() / 20 * 4 / 3).append("px; ");
+                break;
+            // "If the width type is PCT, the value is the percentage times 50 (e.g., 2500 for 50%)".
+            case PCT:
+                css.append("width: ").append(table.getWidth() / 50).append("%; ");
+                break;
+        }
+        return css.toString();
     }
 
     private static String generateCSSForTableCell(XWPFTableCell cell) {
