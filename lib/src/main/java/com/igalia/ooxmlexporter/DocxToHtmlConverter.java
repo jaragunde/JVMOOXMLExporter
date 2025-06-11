@@ -19,6 +19,8 @@ public class DocxToHtmlConverter implements DocumentConverter {
     private Set<DocxStyle> styleList = new HashSet<DocxStyle>();
     private XWPFDocument docx;
 
+    private boolean isListOpen = false;
+
     public DocxToHtmlConverter(String inputFile) {
         this.inputFile = inputFile;
     }
@@ -88,13 +90,36 @@ public class DocxToHtmlConverter implements DocumentConverter {
 
     }
 
-    private static String generateHTMLForParagraph(XWPFParagraph paragraph) {
+    private String generateHTMLForParagraph(XWPFParagraph paragraph) {
         StringBuilder html = new StringBuilder();
-        html.append("<p class=\"")
-                .append(paragraph.getStyle())
-                .append("\" style=\"")
-                .append(generateCSSForParagraph(paragraph))
-                .append("\">");
+
+        boolean isParagraphInsideList = (paragraph.getNumFmt() != null)
+                && !paragraph.getNumFmt().equals("none");
+        if (isListOpen && !isParagraphInsideList) {
+            // close the previous list
+            html.append("</ul>");
+            isListOpen = false;
+        }
+        if (!isListOpen && isParagraphInsideList) {
+            // open a new list
+            html.append("<ul>");
+            isListOpen = true;
+        }
+
+        if (isParagraphInsideList) {
+            html.append("<li class=\"")
+                    .append(paragraph.getStyle())
+                    .append("\" style=\"")
+                    .append(generateCSSForParagraph(paragraph))
+                    .append("\">");
+        } else {
+            html.append("<p class=\"")
+                    .append(paragraph.getStyle())
+                    .append("\" style=\"")
+                    .append(generateCSSForParagraph(paragraph))
+                    .append("\">");
+        }
+
         for (XWPFRun textRegion : paragraph.getRuns()) {
             html.append("<span style='")
                     .append(generateCSSForTextRegion(textRegion))
@@ -116,7 +141,13 @@ public class DocxToHtmlConverter implements DocumentConverter {
                         .append("\" align=\"top\" style=\"float:left;\">");
             }
         }
-        html.append("</p>");
+
+        if (isParagraphInsideList) {
+            html.append("</li>");
+        } else {
+            html.append("</p>");
+        }
+
         return html.toString();
     }
 
