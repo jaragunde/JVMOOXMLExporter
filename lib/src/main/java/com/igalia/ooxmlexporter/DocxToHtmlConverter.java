@@ -44,9 +44,11 @@ public class DocxToHtmlConverter implements DocumentConverter {
                         for (XWPFTableCell cell: row.getTableCells()) {
                             html.append("<td style='")
                                     .append(generateCSSForTableCell(cell))
-                                    .append("'>")
-                                    .append(cell.getText())
-                                    .append("</td>");
+                                    .append("'>");
+                            for (XWPFParagraph paragraph : cell.getParagraphs()) {
+                                html.append(generateHTMLForParagraph(paragraph));
+                            }
+                            html.append("</td>");
                         }
                         html.append("</tr>");
                     }
