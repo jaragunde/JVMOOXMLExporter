@@ -30,6 +30,21 @@ public class DocxToHtmlConverter implements DocumentConverter {
             docx = new XWPFDocument(new FileInputStream(inputFile));
             StringBuilder html = new StringBuilder();
 
+            CTSectPr sectionProperties = docx.getDocument().getBody().getSectPr();
+            int pageWidthVal = ((BigInteger) sectionProperties.getPgSz().getW()).intValue();
+            int leftMarginVal = ((BigInteger) sectionProperties.getPgMar().getLeft()).intValue();
+            int rightMarginVal = ((BigInteger) sectionProperties.getPgMar().getRight()).intValue();
+            // pageWidthVal is the page size, but we need the actual width of the content
+            int contentWidth = pageWidthVal - leftMarginVal - rightMarginVal;
+            // convert from twentieths of a point to pixels
+            double width = contentWidth / 20 * 4 / 3 ;
+            double paddingLeft = leftMarginVal / 20 * 4 / 3 ;
+            double paddingRight = rightMarginVal / 20 * 4 / 3 ;
+            html.append("<div style='")
+                    .append("width: ").append(width).append("px; ")
+                    .append("padding-left: ").append(paddingLeft).append("px; ")
+                    .append("padding-right: ").append(paddingRight).append("px;'>");
+
             for (IBodyElement bodyElement : docx.getBodyElements()) {
                 if (bodyElement.getElementType() == BodyElementType.PARAGRAPH) {
                     html.append(generateHTMLForParagraph((XWPFParagraph) bodyElement));
@@ -60,6 +75,8 @@ public class DocxToHtmlConverter implements DocumentConverter {
             html.append("<style>")
                     .append(generateCSSForStyles(styleList))
                     .append("</style>");
+
+            html.append("</div>");
 
             FileOutputStream outputHtml = new FileOutputStream(this.outputFile);
             outputHtml.write(html.toString().getBytes());
