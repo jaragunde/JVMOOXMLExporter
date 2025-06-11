@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Base64;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class DocxToHtmlConverter implements DocumentConverter {
@@ -28,7 +29,6 @@ public class DocxToHtmlConverter implements DocumentConverter {
         try {
             docx = new XWPFDocument(new FileInputStream(inputFile));
             StringBuilder html = new StringBuilder();
-            Set<String> usedStyles = new HashSet<String>();
 
             for (IBodyElement bodyElement : docx.getBodyElements()) {
                 if (bodyElement.getElementType() == BodyElementType.PARAGRAPH) {
@@ -44,7 +44,6 @@ public class DocxToHtmlConverter implements DocumentConverter {
                                 .append("'>")
                                 .append(textRegion.text())
                                 .append("</span>");
-                        usedStyles.add(textRegion.getStyle());
 
                         for (XWPFPicture picture : textRegion.getEmbeddedPictures()) {
                             XWPFPictureData pictureData = picture.getPictureData();
@@ -60,7 +59,6 @@ public class DocxToHtmlConverter implements DocumentConverter {
                                     .append("\" align=\"top\" style=\"float:left;\">");
                         }
                     }
-                    usedStyles.add(paragraph.getStyle());
                     html.append("</p>");
                 }
                 if (bodyElement.getElementType() == BodyElementType.TABLE) {
@@ -83,7 +81,7 @@ public class DocxToHtmlConverter implements DocumentConverter {
                 }
             }
 
-            generateStyleObjects(usedStyles);
+            generateStyleObjects(docx.getStyles().getStyles());
             html.append("<style>")
                     .append(generateCSSForStyles(styleList))
                     .append("</style>");
@@ -106,11 +104,9 @@ public class DocxToHtmlConverter implements DocumentConverter {
         return css.toString();
     }
 
-    private void generateStyleObjects(Set<String> usedStyles) {
-        for (String styleId : usedStyles) {
-            if (!styleId.isEmpty()) {
-                createAndAddStyleObject(styleId);
-            }
+    private void generateStyleObjects(List<XWPFStyle> usedStyles) {
+        for (XWPFStyle style : usedStyles) {
+            createAndAddStyleObject(style.getStyleId());
         }
     }
 
