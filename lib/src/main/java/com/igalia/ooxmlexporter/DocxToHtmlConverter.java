@@ -32,34 +32,7 @@ public class DocxToHtmlConverter implements DocumentConverter {
 
             for (IBodyElement bodyElement : docx.getBodyElements()) {
                 if (bodyElement.getElementType() == BodyElementType.PARAGRAPH) {
-                    XWPFParagraph paragraph = (XWPFParagraph) bodyElement;
-                    html.append("<p class=\"")
-                            .append(paragraph.getStyle())
-                            .append("\" style=\"")
-                            .append(generateCSSForParagraph(paragraph))
-                            .append("\">");
-                    for (XWPFRun textRegion : paragraph.getRuns()) {
-                        html.append("<span style='")
-                                .append(generateCSSForTextRegion(textRegion))
-                                .append("'>")
-                                .append(textRegion.text())
-                                .append("</span>");
-
-                        for (XWPFPicture picture : textRegion.getEmbeddedPictures()) {
-                            XWPFPictureData pictureData = picture.getPictureData();
-                            byte[] rawData = pictureData.getData();
-                            byte[] encodedData = Base64.getEncoder().encode(rawData);
-                            double pictureWidth = picture.getWidth() * 4/3; // convert from pt to px
-                            html.append("<img src=\"data:")
-                                    .append(pictureData.getPictureTypeEnum().getContentType())
-                                    .append(";base64,")
-                                    .append(new String(encodedData))
-                                    .append("\" width=\"")
-                                    .append(pictureWidth)
-                                    .append("\" align=\"top\" style=\"float:left;\">");
-                        }
-                    }
-                    html.append("</p>");
+                    html.append(generateHTMLForParagraph((XWPFParagraph) bodyElement));
                 }
                 if (bodyElement.getElementType() == BodyElementType.TABLE) {
                     XWPFTable table = (XWPFTable) bodyElement;
@@ -94,6 +67,38 @@ public class DocxToHtmlConverter implements DocumentConverter {
             throw new RuntimeException(e);
         }
 
+    }
+
+    private static String generateHTMLForParagraph(XWPFParagraph paragraph) {
+        StringBuilder html = new StringBuilder();
+        html.append("<p class=\"")
+                .append(paragraph.getStyle())
+                .append("\" style=\"")
+                .append(generateCSSForParagraph(paragraph))
+                .append("\">");
+        for (XWPFRun textRegion : paragraph.getRuns()) {
+            html.append("<span style='")
+                    .append(generateCSSForTextRegion(textRegion))
+                    .append("'>")
+                    .append(textRegion.text())
+                    .append("</span>");
+
+            for (XWPFPicture picture : textRegion.getEmbeddedPictures()) {
+                XWPFPictureData pictureData = picture.getPictureData();
+                byte[] rawData = pictureData.getData();
+                byte[] encodedData = Base64.getEncoder().encode(rawData);
+                double pictureWidth = picture.getWidth() * 4/3; // convert from pt to px
+                html.append("<img src=\"data:")
+                        .append(pictureData.getPictureTypeEnum().getContentType())
+                        .append(";base64,")
+                        .append(new String(encodedData))
+                        .append("\" width=\"")
+                        .append(pictureWidth)
+                        .append("\" align=\"top\" style=\"float:left;\">");
+            }
+        }
+        html.append("</p>");
+        return html.toString();
     }
 
     private static String generateCSSForStyles(Set<DocxStyle> styleList) {
