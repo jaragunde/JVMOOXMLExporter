@@ -175,7 +175,7 @@ public class DocxToHtmlConverter implements DocumentConverter {
             // xgetVal() returns a STHexColorImpl object, which can output a string with RRGGBB values.
             style.getFontFormat().setFontColor(ctStyle.getRPr().getColorArray()[0].xgetVal().getStringValue());
         }
-        if (ctStyle.getPPr().getJc() != null) {
+        if (ctStyle.getPPr() != null && ctStyle.getPPr().getJc() != null) {
             switch(ctStyle.getPPr().getJc().getVal().toString()) {
                 case "start":
                     style.getFontFormat().setParagraphAlignment(ParagraphAlignment.START);
