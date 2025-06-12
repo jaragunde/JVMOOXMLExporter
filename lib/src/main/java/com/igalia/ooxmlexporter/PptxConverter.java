@@ -4,9 +4,7 @@ import de.rototor.pdfbox.graphics2d.PdfBoxGraphics2D;
 import de.rototor.pdfbox.graphics2d.PdfBoxGraphics2DFontTextDrawer;
 import de.rototor.pdfbox.graphics2d.PdfBoxGraphics2DFontTextDrawerDefaultFonts;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 
@@ -21,8 +19,7 @@ import org.apache.poi.xslf.usermodel.XSLFSlide;
 
 public class PptxConverter implements DocumentConverter {
     private PDDocument document;
-    private String inputFile;
-    private String outputFile;
+    private final InputStream inputStream;
 
     private static final String SYSTEM_FONT_PATH = "/usr/share/fonts";
     private static final List<String> FONT_DENYLIST = Arrays.asList("NotoColorEmoji.ttf");
@@ -30,7 +27,15 @@ public class PptxConverter implements DocumentConverter {
     private static final Logger logger = LogManager.getLogger(PptxConverter.class);
 
     public PptxConverter(String inputFile) {
-        this.inputFile = inputFile;
+        try {
+            this.inputStream = new FileInputStream(inputFile);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public PptxConverter(InputStream input) {
+        this.inputStream = input;
     }
 
     private PdfBoxGraphics2DFontTextDrawer createFontTextDrawer() {
@@ -53,9 +58,19 @@ public class PptxConverter implements DocumentConverter {
 
     @Override
     public void convert(String outputFile) {
-        this.outputFile = outputFile + "." + getDefaultExtension();
+        String outputFileWithExtension = outputFile + "." + getDefaultExtension();
         try {
-            XMLSlideShow ppt = new XMLSlideShow(new FileInputStream(inputFile));
+            FileOutputStream outputPdf = new FileOutputStream(outputFileWithExtension);
+            ByteArrayOutputStream output = convert();
+            output.writeTo(outputPdf);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public ByteArrayOutputStream convert() {
+        try {
+            XMLSlideShow ppt = new XMLSlideShow(inputStream);
             document = new PDDocument();
             PdfBoxGraphics2DFontTextDrawer fontTextDrawer = createFontTextDrawer();
 
@@ -70,8 +85,10 @@ public class PptxConverter implements DocumentConverter {
                     convertSlide(ppt, new PdfBoxGraphics2DFontTextDrawerDefaultFonts(), slide);
                 }
             }
-            document.save(new File(this.outputFile));
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            document.save(outputStream);
             document.close();
+            return outputStream;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
