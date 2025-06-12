@@ -34,14 +34,14 @@ public class DocxToHtmlConverter implements DocumentConverter {
         String outputFileWithExtension = outputFile + "." + getDefaultExtension();
         try {
             FileOutputStream outputHtml = new FileOutputStream(outputFileWithExtension);
-            outputHtml.write(convert().toString().getBytes());
+            convert().writeTo(outputHtml);
             outputHtml.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public OutputStream convert() {
+    public ByteArrayOutputStream convert() {
         try {
             docx = new XWPFDocument(inputStream);
             StringBuilder html = new StringBuilder();
@@ -94,7 +94,7 @@ public class DocxToHtmlConverter implements DocumentConverter {
 
             html.append("</div>");
 
-            OutputStream outputHtml = new ByteArrayOutputStream();
+            ByteArrayOutputStream outputHtml = new ByteArrayOutputStream();
             outputHtml.write(html.toString().getBytes());
             outputHtml.close();
             docx.close();
