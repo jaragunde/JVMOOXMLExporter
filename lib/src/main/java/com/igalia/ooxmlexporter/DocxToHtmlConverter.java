@@ -3,15 +3,12 @@ package com.igalia.ooxmlexporter;
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigInteger;
 import java.util.*;
 
 public class DocxToHtmlConverter implements DocumentConverter {
     private String inputFile;
-    private String outputFile;
 
     private Set<DocxStyle> styleList = new HashSet<DocxStyle>();
     private XWPFDocument docx;
@@ -26,7 +23,17 @@ public class DocxToHtmlConverter implements DocumentConverter {
 
     @Override
     public void convert(String outputFile) {
-        this.outputFile = outputFile + "." + getDefaultExtension();
+        String outputFileWithExtension = outputFile + "." + getDefaultExtension();
+        try {
+            FileOutputStream outputHtml = new FileOutputStream(outputFileWithExtension);
+            outputHtml.write(convert().toString().getBytes());
+            outputHtml.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public OutputStream convert() {
         try {
             docx = new XWPFDocument(new FileInputStream(inputFile));
             StringBuilder html = new StringBuilder();
@@ -79,10 +86,11 @@ public class DocxToHtmlConverter implements DocumentConverter {
 
             html.append("</div>");
 
-            FileOutputStream outputHtml = new FileOutputStream(this.outputFile);
+            OutputStream outputHtml = new ByteArrayOutputStream();
             outputHtml.write(html.toString().getBytes());
             outputHtml.close();
             docx.close();
+            return outputHtml;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
