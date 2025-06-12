@@ -8,7 +8,7 @@ import java.math.BigInteger;
 import java.util.*;
 
 public class DocxToHtmlConverter implements DocumentConverter {
-    private String inputFile;
+    private final InputStream inputStream;
 
     private Set<DocxStyle> styleList = new HashSet<DocxStyle>();
     private XWPFDocument docx;
@@ -18,7 +18,15 @@ public class DocxToHtmlConverter implements DocumentConverter {
     private Stack<String> openLists = new Stack<String>();
 
     public DocxToHtmlConverter(String inputFile) {
-        this.inputFile = inputFile;
+        try {
+            this.inputStream = new FileInputStream(inputFile);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public DocxToHtmlConverter(InputStream input) {
+        this.inputStream = input;
     }
 
     @Override
@@ -35,7 +43,7 @@ public class DocxToHtmlConverter implements DocumentConverter {
 
     public OutputStream convert() {
         try {
-            docx = new XWPFDocument(new FileInputStream(inputFile));
+            docx = new XWPFDocument(inputStream);
             StringBuilder html = new StringBuilder();
 
             CTSectPr sectionProperties = docx.getDocument().getBody().getSectPr();
