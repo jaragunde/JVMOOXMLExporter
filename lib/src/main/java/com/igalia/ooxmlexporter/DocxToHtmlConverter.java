@@ -7,10 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.Base64;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class DocxToHtmlConverter implements DocumentConverter {
     private String inputFile;
@@ -19,9 +16,9 @@ public class DocxToHtmlConverter implements DocumentConverter {
     private Set<DocxStyle> styleList = new HashSet<DocxStyle>();
     private XWPFDocument docx;
 
-    // 0 means top-level list, 1 is first nested level, etc.
-    // -1 means the list is closed.
-    private int currentListLevel = -1;
+    // Contains "ul" and "ol" tokens matching the list tags
+    // that have been open during the parsing of the document.
+    private Stack<String> openLists = new Stack<String>();
 
     public DocxToHtmlConverter(String inputFile) {
         this.inputFile = inputFile;
@@ -96,17 +93,30 @@ public class DocxToHtmlConverter implements DocumentConverter {
         StringBuilder html = new StringBuilder();
 
         // Paragraphs with style Heading 1, 2, etc. have an assigned NumIlvl, although their NumFmt is "none".
-        // In that special case, we force newListLevel to be -1 (list closed).
+        // In that special case, we force newListLevel to be 0 (list closed).
         boolean isParagraphInsideList = (paragraph.getNumFmt() != null)
                 && !paragraph.getNumFmt().equals("none");
-        int newListLevel = isParagraphInsideList ? paragraph.getNumIlvl().intValue() : -1;
-        while (currentListLevel > newListLevel) {
-            html.append("</ul>");
-            currentListLevel--;
+        // `getNumIlvl()` returns 0 for top-level lists, but we need to compare to the size of `openLists`,
+        // where 0 means "no list". That's why we add 1.
+        int newListLevel = isParagraphInsideList ? paragraph.getNumIlvl().intValue() + 1 : 0;
+        // Close previously open lists when list level decreases
+        while (openLists.size() > newListLevel) {
+            String listType = openLists.pop();
+            html.append("</").append(listType).append(">");
         }
-        while (currentListLevel < newListLevel) {
-            html.append("<ul>");
-            currentListLevel++;
+        // Open new lists when list level increases
+        while (openLists.size() < newListLevel) {
+            String listType;
+            if (paragraph.getNumFmt().equals("decimal")) {
+                listType = "ol";
+            } else if (paragraph.getNumFmt().equals("bullet")) {
+                listType = "ul";
+            } else {
+                // default to <ul>, although this should be unreachable.
+                listType = "ul";
+            }
+            openLists.push(listType);
+            html.append("<").append(listType).append(">");
         }
 
         if (isParagraphInsideList) {
