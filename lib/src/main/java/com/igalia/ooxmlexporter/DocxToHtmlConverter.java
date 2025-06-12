@@ -21,7 +21,7 @@ public class DocxToHtmlConverter implements DocumentConverter {
 
     // 0 means top-level list, 1 is first nested level, etc.
     // -1 means the list is closed.
-    private int currentListLevel;
+    private int currentListLevel = -1;
 
     public DocxToHtmlConverter(String inputFile) {
         this.inputFile = inputFile;
